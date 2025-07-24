@@ -34,12 +34,22 @@ public class JwtUtil {
 	}
 
 	public boolean validateToken(String token) {
-		try {
-			Jwts.parser().setSigningKey(Keys.hmacShaKeyFor(SECRET_KEY.getBytes())).build().parseClaimsJws(token);
-			return true;
-		} catch (JwtException | IllegalArgumentException e) {
-			return false;
-		}
-	}
+        try {
+            Jwts.parser()
+                .setClock(() -> new Date())
+                .setAllowedClockSkewSeconds(30)
+                .setSigningKey(Keys.hmacShaKeyFor(SECRET_KEY.getBytes()))
+                .build()
+                .parseClaimsJws(token);
+            System.out.println("Token validated successfully: " + token);
+            return true;
+        } catch (JwtException e) {
+            System.err.println("JWT validation failed: " + e.getMessage());
+            return false;
+        } catch (IllegalArgumentException e) {
+            System.err.println("Illegal argument in token validation: " + e.getMessage());
+            return false;
+        }
+    }
 
 }

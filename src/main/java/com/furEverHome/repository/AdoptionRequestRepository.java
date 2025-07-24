@@ -11,10 +11,8 @@ import java.util.UUID;
 
 @Repository
 public interface AdoptionRequestRepository extends JpaRepository<AdoptionRequest, UUID> {
-	// Find all adoption requests for a specific pet
 	List<AdoptionRequest> findByPetId(UUID petId);
 
-	// Find all adoption requests by a specific user
 	List<AdoptionRequest> findByUserId(UUID userId);
 
 	long countByPetCenterId(UUID id);

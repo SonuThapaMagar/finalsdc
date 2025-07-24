@@ -47,16 +47,16 @@ public class UserController {
 	private final UserRepository userRepository;
 
 	@Autowired
-    private FileStorageService fileStorageService;
-    
+	private FileStorageService fileStorageService;
+
 	@Autowired
 	public UserController(PetRepository petRepository, JwtUtil jwtUtil, AdoptionRequestService adoptionRequestService,
-			UserService userService,PetService petService,UserRepository userRepository) {
+			UserService userService, PetService petService, UserRepository userRepository) {
 		this.petRepository = petRepository;
 		this.jwtUtil = jwtUtil;
 		this.adoptionRequestService = adoptionRequestService;
 		this.userService = userService;
-		this.petService=petService;
+		this.petService = petService;
 		this.userRepository = userRepository;
 	}
 
@@ -93,26 +93,25 @@ public class UserController {
 
 	@GetMapping("/pets/{id}")
 	public ResponseEntity<?> getPetById(@PathVariable UUID id) {
-	    Optional<Pet> pet = petRepository.findById(id);
-	    if (!pet.isPresent() || !pet.get().getStatus().equals("AVAILABLE")) {
-	        return ResponseEntity.status(404).body(new AuthController.ErrorResponse("Pet not found or not available"));
-	    }
-	    PetResponse petResponse = new PetResponse(pet.get().getId(), pet.get().getName(), pet.get().getBreed(),
-	            pet.get().getAge(), pet.get().getGender(), pet.get().getDescription(), pet.get().getLocation(),
-	            pet.get().getStatus(), pet.get().getCenterId(), pet.get().getImageUrl());
-	    return ResponseEntity.ok(petResponse);
+		Optional<Pet> pet = petRepository.findById(id);
+		if (!pet.isPresent() || !pet.get().getStatus().equals("AVAILABLE")) {
+			return ResponseEntity.status(404).body(new AuthController.ErrorResponse("Pet not found or not available"));
+		}
+		PetResponse petResponse = new PetResponse(pet.get().getId(), pet.get().getName(), pet.get().getBreed(),
+				pet.get().getAge(), pet.get().getGender(), pet.get().getDescription(), pet.get().getLocation(),
+				pet.get().getStatus(), pet.get().getCenterId(), pet.get().getImageUrl());
+		return ResponseEntity.ok(petResponse);
 	}
-	
+
 	@GetMapping("/pets")
 	public ResponseEntity<?> viewPets() {
-	    List<Pet> pets = petRepository.findAll().stream()
-	            .filter(pet -> pet.getStatus().equals("AVAILABLE"))
-	            .collect(Collectors.toList());
-	    List<PetResponse> petResponses = pets.stream()
-	            .map(pet -> new PetResponse(pet.getId(), pet.getName(), pet.getBreed(), pet.getAge(), pet.getGender(),
-	                    pet.getDescription(), pet.getLocation(), pet.getStatus(), pet.getCenterId(), pet.getImageUrl()))
-	            .collect(Collectors.toList());
-	    return ResponseEntity.ok(petResponses);
+		List<Pet> pets = petRepository.findAll().stream().filter(pet -> pet.getStatus().equals("AVAILABLE"))
+				.collect(Collectors.toList());
+		List<PetResponse> petResponses = pets.stream()
+				.map(pet -> new PetResponse(pet.getId(), pet.getName(), pet.getBreed(), pet.getAge(), pet.getGender(),
+						pet.getDescription(), pet.getLocation(), pet.getStatus(), pet.getCenterId(), pet.getImageUrl()))
+				.collect(Collectors.toList());
+		return ResponseEntity.ok(petResponses);
 	}
 
 	@GetMapping("/pets/search")
@@ -157,29 +156,48 @@ public class UserController {
 					.body(new AuthController.ErrorResponse("Failed to submit adoption request: " + e.getMessage()));
 		}
 	}
-	
-	@GetMapping("/profile")
-    @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<?> getUserProfile(@RequestHeader("Authorization") String token) {
-        String tokenValue = token.substring(7); // Remove "Bearer " prefix
-        String email = jwtUtil.getEmailFromToken(tokenValue);
-        if (email == null) {
-            return ResponseEntity.status(401).body(new AuthController.ErrorResponse("Invalid token"));
-        }
 
-        try {
-            UserResponse userProfile = userService.getUserById(
-                userRepository.findByEmail(email)
-                    .orElseThrow(() -> new IllegalArgumentException("User not found"))
-                    .getId()
-            );
-            return ResponseEntity.ok(new SuccessResponse("Profile fetched successfully", userProfile));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(404).body(new AuthController.ErrorResponse(e.getMessage()));
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body(new AuthController.ErrorResponse("Failed to fetch profile: " + e.getMessage()));
-        }
-    }
+	@GetMapping("/adoption-history")
+	@PreAuthorize("hasRole('USER')")
+	public ResponseEntity<?> getAdoptionHistory(@RequestHeader("Authorization") String token) {
+		String tokenValue = token.substring(7); // Remove "Bearer " prefix
+		String email = jwtUtil.getEmailFromToken(tokenValue);
+		if (email == null) {
+			return ResponseEntity.status(401).body(new AuthController.ErrorResponse("Invalid token"));
+		}
+
+		try {
+			List<AdoptionRequestResponse> adoptionRequests = adoptionRequestService
+					.getAdoptionRequestsByUserEmail(email);
+			return ResponseEntity.ok(new SuccessResponse("Adoption history fetched successfully", adoptionRequests));
+		} catch (IllegalArgumentException e) {
+			return ResponseEntity.status(404).body(new AuthController.ErrorResponse(e.getMessage()));
+		} catch (Exception e) {
+			return ResponseEntity.status(500)
+					.body(new AuthController.ErrorResponse("Failed to fetch adoption history: " + e.getMessage()));
+		}
+	}
+
+	@GetMapping("/profile")
+	@PreAuthorize("hasRole('USER')")
+	public ResponseEntity<?> getUserProfile(@RequestHeader("Authorization") String token) {
+		String tokenValue = token.substring(7); // Remove "Bearer " prefix
+		String email = jwtUtil.getEmailFromToken(tokenValue);
+		if (email == null) {
+			return ResponseEntity.status(401).body(new AuthController.ErrorResponse("Invalid token"));
+		}
+
+		try {
+			UserResponse userProfile = userService.getUserById(userRepository.findByEmail(email)
+					.orElseThrow(() -> new IllegalArgumentException("User not found")).getId());
+			return ResponseEntity.ok(new SuccessResponse("Profile fetched successfully", userProfile));
+		} catch (IllegalArgumentException e) {
+			return ResponseEntity.status(404).body(new AuthController.ErrorResponse(e.getMessage()));
+		} catch (Exception e) {
+			return ResponseEntity.status(500)
+					.body(new AuthController.ErrorResponse("Failed to fetch profile: " + e.getMessage()));
+		}
+	}
 
 	@PutMapping("/profile")
 	public ResponseEntity<?> updateProfile(@RequestHeader("Authorization") String token,
