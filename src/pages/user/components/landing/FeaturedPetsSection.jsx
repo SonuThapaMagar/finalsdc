@@ -46,7 +46,7 @@ const FeaturedPetsSection = ({ pets, isLoading, isFavorite, toggleFavorite, onNa
         </div>
       )}
       <button
-        onClick={onNavigateToCategories}
+        onClick={() => navigate('/user/petList')}
         style={{ backgroundColor: 'white', color: '#8b5cf6', border: '2px solid #8b5cf6', padding: '0.75rem 2rem', borderRadius: '9999px', fontWeight: '600', margin: '3rem auto 0', display: 'block', cursor: 'pointer', transition: 'all 0.2s' }}
         onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#f3f4f6'; e.currentTarget.style.transform = 'scale(1.05)'; }}
         onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'white'; e.currentTarget.style.transform = 'scale(1)'; }}

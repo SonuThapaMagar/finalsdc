@@ -1,5 +1,3 @@
-"use client";
-
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -28,13 +26,20 @@ export default function AdoptMe() {
     const fetchPetData = async () => {
       try {
         const response = await api.get(`/api/user/pets/${petId}`, {
-          headers: { Authorization: `Bearer ${localStorage.getItem("jwtToken")}` },
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
+          },
         });
         setPet(response.data);
       } catch (error) {
-        console.error("Pet fetch error:", error.response?.data || error.message);
+        console.error(
+          "Pet fetch error:",
+          error.response?.data || error.message
+        );
         if (error.response?.status === 403) {
-          toast.error("You are not authorized to view this pet's details. Please log in as a user.");
+          toast.error(
+            "You are not authorized to view this pet's details. Please log in as a user."
+          );
         } else if (error.response?.status === 404) {
           toast.error("Pet not found or not available.");
         } else {
@@ -80,13 +85,22 @@ export default function AdoptMe() {
     };
 
     try {
-      const response = await api.post("/api/user/adoption-request", submissionData, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("jwtToken")}` },
-      });
-      const appId = response.data.data?.id || `APP${Date.now().toString().slice(-6)}`;
-      toast.success("Application submitted successfully! You will be notified of the status.");
-      navigate(`/adoption-success/${petId}/${appId}`, {
-        state: { pet, formData: submissionData, applicationId: appId },
+      const response = await api.post(
+        "/api/user/adoption-request",
+        submissionData,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
+          },
+        }
+      );
+      const appId =
+        response.data.data?.id || `APP${Date.now().toString().slice(-6)}`;
+      toast.success(
+        "Application submitted successfully! Check your adoption history for status updates."
+      );
+      navigate("/adoption-history", {
+        state: { pet, applicationId: appId },
       });
     } catch (error) {
       console.error("API Error:", {
@@ -95,12 +109,19 @@ export default function AdoptMe() {
         statusText: error.response?.statusText,
         data: error.response?.data,
       });
-      if (error.response?.status === 403) {
-        toast.error("Access denied. Please log in with a user account to submit an adoption request.");
-      } else {
+      const errorMessage =
+        error.response?.data?.message ||
+        "Failed to submit application. Please try again.";
+      if (error.response?.status === 401) {
+        toast.error("Session expired or invalid token. Please log in again.");
+        localStorage.removeItem("jwtToken");
+        navigate("/login");
+      } else if (error.response?.status === 403) {
         toast.error(
-          error.response?.data?.message || "Failed to submit application. Please try again."
+          "Access denied. Please log in with a user account to submit an adoption request."
         );
+      } else {
+        toast.error(errorMessage);
       }
     }
   };
@@ -121,7 +142,9 @@ export default function AdoptMe() {
     <div className="adoption-form-container">
       <div className="adoption-form-header">
         <h1 className="adoption-form-title">Adopt {pet.name}</h1>
-        <p className="adoption-form-subtitle">Please fill out this form to start the adoption process</p>
+        <p className="adoption-form-subtitle">
+          Please fill out this form to start the adoption process
+        </p>
       </div>
 
       <div className="adoption-pet-details-card">
@@ -134,15 +157,31 @@ export default function AdoptMe() {
           <div className="adoption-pet-basic-info">
             <div className="adoption-pet-name-large">
               {pet.name}
-              <span className={pet.gender === "female" ? "adoption-gender-female" : "adoption-gender-male"}>
+              <span
+                className={
+                  pet.gender === "female"
+                    ? "adoption-gender-female"
+                    : "adoption-gender-male"
+                }
+              >
                 {pet.gender === "female" ? "♀️" : "♂️"}
               </span>
             </div>
             <div className="adoption-pet-breed">{pet.breed}</div>
             <div className="adoption-pet-location-info">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" stroke="currentColor" strokeWidth="2" />
-                <circle cx="12" cy="10" r="3" stroke="currentColor" strokeWidth="2" />
+                <path
+                  d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                />
+                <circle
+                  cx="12"
+                  cy="10"
+                  r="3"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                />
               </svg>
               {pet.location}
             </div>
@@ -155,11 +194,15 @@ export default function AdoptMe() {
             <div className="adoption-pet-attribute-label">Age</div>
           </div>
           <div className="adoption-pet-attribute">
-            <div className="adoption-pet-attribute-value">{pet.color || "N/A"}</div>
+            <div className="adoption-pet-attribute-value">
+              {pet.color || "N/A"}
+            </div>
             <div className="adoption-pet-attribute-label">Color</div>
           </div>
           <div className="adoption-pet-attribute">
-            <div className="adoption-pet-attribute-value">{pet.weight || "N/A"}</div>
+            <div className="adoption-pet-attribute-value">
+              {pet.weight || "N/A"}
+            </div>
             <div className="adoption-pet-attribute-label">Weight</div>
           </div>
           <div className="adoption-pet-attribute">
@@ -210,7 +253,9 @@ export default function AdoptMe() {
             onChange={handleInputChange}
             className="adoption-form-checkbox"
           />
-          <label className="adoption-form-label">I have a yard or outdoor space</label>
+          <label className="adoption-form-label">
+            I have a yard or outdoor space
+          </label>
         </div>
 
         <div className="adoption-checkbox-group">
@@ -221,7 +266,9 @@ export default function AdoptMe() {
             onChange={handleInputChange}
             className="adoption-form-checkbox"
           />
-          <label className="adoption-form-label">I currently have other pets</label>
+          <label className="adoption-form-label">
+            I currently have other pets
+          </label>
         </div>
 
         <div className="adoption-form-group">
@@ -236,7 +283,9 @@ export default function AdoptMe() {
         </div>
 
         <div className="adoption-form-group">
-          <label className="adoption-form-label">Why do you want to adopt {pet.name}? *</label>
+          <label className="adoption-form-label">
+            Why do you want to adopt {pet.name}? *
+          </label>
           <textarea
             name="motivation"
             value={formData.motivation}
@@ -257,11 +306,16 @@ export default function AdoptMe() {
             required
           />
           <label className="adoption-form-label">
-            I agree to the terms and conditions and understand that this is an application, not a guarantee of adoption *
+            I agree to the terms and conditions and understand that this is an
+            application, not a guarantee of adoption *
           </label>
         </div>
 
-        <button type="submit" className="adoption-submit-button" disabled={!formData.agreement}>
+        <button
+          type="submit"
+          className="adoption-submit-button"
+          disabled={!formData.agreement}
+        >
           Submit Adoption Application
         </button>
       </form>

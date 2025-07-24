@@ -5,6 +5,7 @@ import ProfileModal from "./ProfileModal"
 import logo from "../../../images/logo.png"
 import "../../../styles/Navbar.css"
 import { useAuth } from "./auth-provider"
+import avatarImg from '../../../images/avatar.svg';
 
 // Debounce hook
 function useDebounce(callback, delay) {
@@ -167,9 +168,9 @@ export default function Navbar({
   // Navigation links for logged-in users
   const userNavigationLinks = [
     { name: "Dashboard", href: "/user/dashboard" },
+    { name: "Pet Listing", href: "/user/petList" },
+    { name: "My Adoptions", href: "/user/myadoptions" },
     { name: "Lost & Found", href: "/user/lost-found" },
-    { name: "About", href: "/user/about-us" },
-    { name: "Contact", href: "/user/contact" },
   ];
 
   // Navigation links for guests
@@ -228,39 +229,22 @@ export default function Navbar({
                     aria-label="Open profile menu"
                     tabIndex={0}
                   >
-                    {user?.profileImage ? (
-                      <img
-                        src={user.profileImage}
-                        alt={user?.fullName || "Profile"}
-                        style={{
-                          width: "40px",
-                          height: "40px",
-                          borderRadius: "50%",
-                          objectFit: "cover"
-                        }}
-                      />
-                    ) : (
-                      <div
-                        style={{
-                          width: "40px",
-                          height: "40px",
-                          borderRadius: "50%",
-                          backgroundColor: avatarColor,
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          color: "white",
-                          fontSize: "18px",
-                          fontWeight: "bold",
-                          textTransform: "uppercase"
-                        }}
-                      >
-                        {userInitial}
-                      </div>
-                    )}
+                    <img
+                      src={avatarImg}
+                      alt={user?.fullName || "Profile"}
+                      style={{
+                        width: "40px",
+                        height: "40px",
+                        borderRadius: "50%",
+                        objectFit: "cover"
+                      }}
+                    />
                   </div>
                   <div className="navbar-profile-info" onClick={() => setIsProfileDropdownOpen((prev) => !prev)} style={{ cursor: "pointer" }} tabIndex={0}>
-                    <div className="navbar-profile-name">{user?.fullName || "User"}</div>
+                    {/* <div className="navbar-profile-name">{user?.fullName || "User"}</div> */}
+                    {user?.email && (
+                      <div style={{ fontSize: '0.85rem', color: '#6b7280', fontWeight: 400 }}>{user.email}</div>
+                    )}
                   </div>
                   {isProfileDropdownOpen && (
                     <>
@@ -355,40 +339,23 @@ export default function Navbar({
                   role="button"
                 >
                   <div className="navbar-mobile-profile-image">
-                    {user?.profileImage ? (
-                      <img
-                        src={user.profileImage}
-                        alt={user?.fullName || "Profile"}
-                        style={{
-                          width: "32px",
-                          height: "32px",
-                          borderRadius: "50%",
-                          objectFit: "cover"
-                        }}
-                      />
-                    ) : (
-                      <div
-                        style={{
-                          width: "32px",
-                          height: "32px",
-                          borderRadius: "50%",
-                          backgroundColor: avatarColor,
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          color: "white",
-                          fontSize: "14px",
-                          fontWeight: "bold",
-                          textTransform: "uppercase"
-                        }}
-                      >
-                        {userInitial}
-                      </div>
-                    )}
+                    <img
+                      src={avatarImg}
+                      alt={user?.fullName || "Profile"}
+                      style={{
+                        width: "32px",
+                        height: "32px",
+                        borderRadius: "50%",
+                        objectFit: "cover"
+                      }}
+                    />
                   </div>
                   <div>
                     <div className="navbar-mobile-profile-location">Location</div>
                     <div className="navbar-mobile-profile-name">{user?.fullName || "User"}</div>
+                    {user?.email && (
+                      <div style={{ fontSize: '0.85rem', color: '#6b7280', fontWeight: 400 }}>{user.email}</div>
+                    )}
                   </div>
                 </div>
                 <button

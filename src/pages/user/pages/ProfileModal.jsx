@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Camera, User, Mail, Phone, MapPin, Calendar, Shield, Edit2, Save } from 'lucide-react';
 import '../../../styles/ProfileModal.css';
 import { toast } from 'react-toastify';
+import avatarImg from '../../../images/avatar.jpg';
 
 const ProfileModal = ({ isOpen, onClose, userProfile, onUpdateProfile }) => {
   const [isEditing, setIsEditing] = useState(false);
