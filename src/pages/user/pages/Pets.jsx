@@ -1,3 +1,4 @@
+// pages/user/pages/category.jsx
 "use client"
 
 // React & Animation
@@ -13,12 +14,11 @@ import FilterModal from "./filtermodal"
 import NotificationsPanel from "./notificationpanel"
 import SearchModal from "./searchmodal"
 import ProfileModal from "./ProfileModal"
-import PetDetail from "../../user/pages/petdetail" // Assuming PetDetail is a separate file
+import PetDetail from "../../user/pages/petdetail"
 import api from '../../../api/api'
 
 // Data & Assets
 import { profileImage } from "../../../data/petImages"
-import logo from "../../../images/logo.png"
 
 // Styles
 import "../../../index.css"
@@ -63,36 +63,36 @@ export default function PetCategories() {
   // Fetch pets from API on component mount
   useEffect(() => {
     const fetchPets = async () => {
-        try {
-            let config = {};
-            const token = localStorage.getItem("jwtToken"); // Changed from "token"
-            if (token) {
-                config.headers = { Authorization: `Bearer ${token}` };
-            }
-            const response = await api.get('/api/user/pets', config);
-            const data = response.data;
-            const mappedPets = data.map((pet) => ({
-                id: pet.id,
-                name: pet.name,
-                breed: pet.breed,
-                age: pet.age.toString(),
-                gender: pet.gender,
-                location: pet.location || "Unknown",
-                imageUrl: pet.imageUrl || "/placeholder.svg",
-                description: pet.description || "No description available",
-                status: pet.status || "Unknown",
-            }));
-            setPets(mappedPets);
-            setError(null);
-        } catch (err) {
-            setError("Error fetching pets: " + (err.response?.data?.message || err.message));
-            if (err.response?.status === 403) {
-                navigate("/login");
-            }
+      try {
+        let config = {};
+        const token = localStorage.getItem("jwtToken");
+        if (token) {
+          config.headers = { Authorization: `Bearer ${token}` };
         }
+        const response = await api.get('/api/user/pets', config);
+        const data = response.data;
+        const mappedPets = data.map((pet) => ({
+          id: pet.id,
+          name: pet.name,
+          breed: pet.breed,
+          age: pet.age.toString(),
+          gender: pet.gender,
+          location: pet.location || "Unknown",
+          imageUrl: pet.imageUrl || "/placeholder.svg",
+          description: pet.description || "No description available",
+          status: pet.status || "Unknown",
+        }));
+        setPets(mappedPets);
+        setError(null);
+      } catch (err) {
+        setError("Error fetching pets: " + (err.response?.data?.message || err.message));
+        if (err.response?.status === 403) {
+          navigate("/login");
+        }
+      }
     };
     fetchPets();
-}, [navigate]);
+  }, [navigate]);
 
   // Apply filters and search to pets
   const getFilteredPets = () => {
@@ -152,7 +152,6 @@ export default function PetCategories() {
     setSearchQuery("")
   }
 
-  // Update handlePetClick to set selectedPetId
   const handlePetClick = (petId) => {
     setSelectedPetId(petId)
   }
@@ -211,7 +210,6 @@ export default function PetCategories() {
           </motion.button>
         </motion.div>
       )}
-
       <motion.main
         className="category-page-container"
         initial={{ opacity: 0, y: 20 }}

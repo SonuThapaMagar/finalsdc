@@ -4,7 +4,6 @@ import { ArrowLeft, Heart, Home, CheckCircle, Clock, FileText, Search, Menu, X, 
 import "../../../styles/landing.css"
 // import logo from "../images/logo.png"
 // import group from "../images/group.png"
-import Navbar from "./Navbar"
 
 export default function LearnMore() {
   const navigate = useNavigate()
@@ -101,9 +100,6 @@ export default function LearnMore() {
 
   return (
     <div className="landing-page">
-      {/* Modular Navbar */}
-      <Navbar />
-
       {/* Header Section */}
       <section className="hero" style={{ padding: "3rem 0" }}>
         <div className="hero-container">

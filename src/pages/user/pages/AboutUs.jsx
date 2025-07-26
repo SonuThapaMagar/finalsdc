@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom"
 import { ArrowLeft, Heart, Shield, Users, Award, Target, Eye, Phone, Mail, MapPin, Menu, X } from "lucide-react"
 import group from "../../../images/group.png"
 import "../../../styles/landing.css"
-import Navbar from '../pages/Navbar'; // Adjust path if needed
 
 export default function AboutUs() {
   const navigate = useNavigate()
@@ -73,7 +72,6 @@ export default function AboutUs() {
 
   return (
     <>
-      <Navbar />
       <div className="landing-page">
         {/* Header Section */}
         <section className="hero" style={{ padding: "3rem 0" }}>

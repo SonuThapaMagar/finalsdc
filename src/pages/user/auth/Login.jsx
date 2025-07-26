@@ -1,18 +1,16 @@
-import { Link, useNavigate } from 'react-router-dom';
-import '../../../styles/login.css';
-import img from '../../../images/login.png';
-import '../../../styles/global.css';
-import { useState } from 'react';
-import { FaEye, FaEyeSlash } from 'react-icons/fa';
-import api from '../../../api/api';
-import { toast } from 'react-toastify';
-import { useAuth } from '../pages/auth-provider';
+import { Link, useNavigate } from "react-router-dom";
+import "../../../styles/login.css";
+import img from "../../../images/login.png";
+import "../../../styles/global.css";
+import { useState } from "react";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
+import api from "../../../api/api";
+import { toast } from "react-toastify";
+import { useAuth } from "../pages/auth-provider";
 
 function Login() {
-  const [formData, setFormData] = useState({ email: '', password: '' });
+  const [formData, setFormData] = useState({ email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
   const navigate = useNavigate();
   const { login } = useAuth();
 
@@ -23,109 +21,61 @@ function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-        const response = await api.post('/api/auth/login', {
-            email: formData.email,
-            password: formData.password,
-        });
-        const { message, id, token, role } = response.data;
-        toast.success(message || 'Login successful!');
-        console.log('User ID:', id, 'Role:', role);
+      const response = await api.post("/api/auth/login", {
+        email: formData.email,
+        password: formData.password,
+      });
+      console.log("API Response:", response.data);
+      const { message, id, token, role = "USER" } = response.data; // Default to 'USER' if role is missing
+      toast.success(message || "Login successful!");
+      console.log("User ID:", id, "Role:", role);
 
-        // Explicitly store token
-        localStorage.setItem("jwtToken", token);
+      // Clear stale tokens
+      localStorage.removeItem("adminToken");
+      localStorage.removeItem("superadminToken");
+      localStorage.removeItem("userRole");
+      localStorage.setItem("jwtToken", token);
 
-        const userData = {
-            id: id,
-            role: role,
-            fullName: response.data.fullName || "User",
-            email: formData.email,
-            profileImage: response.data.profileImage || "/placeholder.svg?height=40&width=40"
-        };
-        login(userData, token);
+      const userData = {
+        id: id,
+        role: role,
+        fullName: response.data.fullName || "User",
+        email: formData.email,
+        profileImage:
+          response.data.profileImage || "/placeholder.svg?height=40&width=40",
+      };
+      login(userData, token);
 
-        setTimeout(() => {
-            if (role === 'SUPERADMIN') navigate('/superadmin/dashboard');
-            else if (role === 'ADMIN') navigate('/admin/dashboard');
-            else if (role === 'USER') navigate('/user/dashboard');
-        }, 2000);
+      // Navigate based on role
+      if (role === "SUPERADMIN") navigate("/superadmin/dashboard");
+      else if (role === "ADMIN") navigate("/admin/dashboard");
+      else navigate("/user/dashboard"); // Default to user dashboard
     } catch (error) {
-        let errorMessage = 'An error occurred during login';
-        if (error.response) {
-            if (error.response.status === 401) {
-                errorMessage = 'Invalid email or password. Please try again.';
-            } else if (error.response.data?.message) {
-                errorMessage = error.response.data.message;
-            }
-        } else if (error.message) {
-            errorMessage = error.message;
+      let errorMessage = "An error occurred during login";
+      if (error.response) {
+        console.error("Error Response:", error.response.data);
+        if (error.response.status === 401) {
+          errorMessage = "Invalid email or password. Please try again.";
+        } else if (error.response.data?.message) {
+          errorMessage = error.response.data.message;
         }
-        console.error('Error:', errorMessage);
-        toast.error(errorMessage);
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      console.error("Error:", errorMessage);
+      toast.error(errorMessage);
     }
-};
-  // const handleSubmit = async (e) => {
-
-  //   e.preventDefault();
-  //   // setError('');
-  //   // setSuccess('');
-
-  //   console.log('Login form submitted with data:', formData);
-
-  //   try {
-  //     const response = await api.post('/api/auth/login', {
-  //       email: formData.email,
-  //       password: formData.password,
-  //     });
-
-      
-  //     const { message, id, token, role } = response.data;
-  //     // setSuccess(message || 'Login successful!');
-  //     toast.success(message || 'Login successful!');
-  //     console.log('User ID:', id, 'Role:', role);
-
-  //     // Clear any admin/superadmin tokens/roles
-  //     localStorage.removeItem('adminToken');
-  //     localStorage.removeItem('superadminToken');
-  //     localStorage.removeItem('userRole');
-
-  //     // Use AuthProvider's login function
-  //     const userData = {
-  //       id: id,
-  //       role: role,
-  //       fullName: response.data.fullName || "User",
-  //       email: formData.email,
-  //       profileImage: response.data.profileImage || "/placeholder.svg?height=40&width=40"
-  //     };
-      
-  //     login(userData, token);
-
-  //     // Role-based redirection
-  //     setTimeout(() => {
-  //       if (role === 'SUPERADMIN') navigate('/superadmin/dashboard');
-  //       else if (role === 'ADMIN') navigate('/admin/dashboard');
-  //       else if (role === 'USER') navigate('/user/dashboard');
-  //     }, 2000);
-  //   } catch (error) {
-  //     let errorMessage = 'An error occurred during login';
-  //     if (error.response) {
-  //       if (error.response.status === 401) {
-  //         errorMessage = 'Invalid email or password. Please try again.';
-  //       } else if (error.response.data?.message) {
-  //         errorMessage = error.response.data.message;
-  //       }
-  //     } else if (error.message) {
-  //       errorMessage = error.message;
-  //     }
-  //     console.error('Error:', errorMessage);
-  //     toast.error(errorMessage);
-  //   }
-  // };
+  };
 
   return (
     <div className="page-container">
       <main className="main-content">
         <div className="illustration-container">
-          <img src={img} alt="Pet care illustration" className="pet-illustration" />
+          <img
+            src={img}
+            alt="Pet care illustration"
+            className="pet-illustration"
+          />
         </div>
         <div className="form-container">
           <div className="form-card">
@@ -134,32 +84,39 @@ function Login() {
             <form className="login-form" onSubmit={handleSubmit}>
               <div className="form-group">
                 <label htmlFor="email">Email*</label>
-                <input type="email" id="email" placeholder="Enter Your Email" value={formData.email} onChange={handleChange} required />
+                <input
+                  type="email"
+                  id="email"
+                  placeholder="Enter Your Email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  required
+                />
               </div>
               <div className="form-group">
                 <label htmlFor="password">Password*</label>
-                <div style={{ position: 'relative' }}>
+                <div style={{ position: "relative" }}>
                   <input
-                    type={showPassword ? 'text' : 'password'}
+                    type={showPassword ? "text" : "password"}
                     id="password"
                     placeholder="Enter Your Password"
                     value={formData.password}
                     onChange={handleChange}
                     required
-                    style={{ paddingRight: '2rem' }}
+                    style={{ paddingRight: "2rem" }}
                   />
                   <span
                     onClick={() => setShowPassword((prev) => !prev)}
                     style={{
-                      position: 'absolute',
-                      right: '0.5rem',
-                      top: '50%',
-                      transform: 'translateY(-50%)',
-                      cursor: 'pointer',
-                      userSelect: 'none',
-                      fontSize: '1.2rem',
+                      position: "absolute",
+                      right: "0.5rem",
+                      top: "50%",
+                      transform: "translateY(-50%)",
+                      cursor: "pointer",
+                      userSelect: "none",
+                      fontSize: "1.2rem",
                     }}
-                    title={showPassword ? 'Hide password' : 'Show password'}
+                    title={showPassword ? "Hide password" : "Show password"}
                   >
                     {showPassword ? <FaEye /> : <FaEyeSlash />}
                   </span>
@@ -174,7 +131,10 @@ function Login() {
             </form>
             <div className="form-footer">
               <p>
-                Don't have Account? <Link to="/signup" className="form-link">Sign up Here</Link>
+                Don't have Account?{" "}
+                <Link to="/signup" className="form-link">
+                  Sign up Here
+                </Link>
               </p>
             </div>
           </div>

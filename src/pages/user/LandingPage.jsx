@@ -1,11 +1,8 @@
 // src/pages/user/LandingPage.jsx
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
 import { Search, Heart, Shield, Users, Award, Phone, Mail, MapPin, Facebook, Twitter, Instagram, ArrowRight, CheckCircle } from 'lucide-react';
 import { getPets, searchPets } from '../../services/userService';
 import '../../styles/landing.css';
-import logo from '../../images/logo.png';
-import Navbar from './pages/Navbar';
 import LandingFooter from './components/Footer/LandingFooter';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
@@ -64,7 +61,6 @@ function LandingPage() {
 
   return (
     <div className="landing-page">
-      <Navbar showSearch={true} searchQuery={searchQuery} onSearchChange={handleSearchChange} onSearchSubmit={handleSearchSubmit} />
       <HeroSection onNavigateToCategories={onNavigateToCategories} navigate={navigate} />
       <CategoriesSection pets={pets} />
       <FeaturedPetsSection

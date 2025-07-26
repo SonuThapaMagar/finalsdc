@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Mail, Phone, MapPin } from 'lucide-react';
 import '../../../../styles/landing.css';
-import Navbar from '../../pages/Navbar.jsx';
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -36,7 +35,6 @@ const Contact = () => {
 
   return (
     <>
-      <Navbar showSearch={false} />
       <div className="min-h-screen bg-gradient-to-br from-purple-50 to-indigo-50 flex flex-col">
         {/* Hero Section */}
         <div className="relative bg-gradient-to-r from-purple-500 to-indigo-600 py-14 mb-10">
