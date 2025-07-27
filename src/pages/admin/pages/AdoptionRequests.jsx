@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../../api/api";
 import { toast } from "react-toastify";
-import { RiCheckLine, RiCloseLine, RiEyeLine } from "react-icons/ri";
+import { RiCheckLine, RiCloseLine, RiEyeLine, RiDeleteBin6Line } from "react-icons/ri"; // Add delete icon
 
 const AdoptionRequests = () => {
   const navigate = useNavigate();
@@ -12,7 +12,11 @@ const AdoptionRequests = () => {
   const [showDetails, setShowDetails] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [itemsPerPage] = useState(10); 
+  const [itemsPerPage] = useState(10);
+
+  // Modal state for delete
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteRequestId, setDeleteRequestId] = useState(null);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -76,6 +80,23 @@ const AdoptionRequests = () => {
     } catch (error) {
       console.error("Reject error:", error);
       toast.error("Failed to reject adoption request. Please try again.");
+    }
+  };
+
+  // Delete handler
+  const handleDelete = async (requestId) => {
+    try {
+      await api.delete(`/api/admin/adoption-request/${requestId}`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("jwtToken")}` },
+      });
+      setAdoptionRequests(prev => prev.filter(req => req.id !== requestId));
+      toast.success("Adoption request deleted successfully!");
+    } catch (error) {
+      console.error("Delete error:", error);
+      toast.error("Failed to delete adoption request. Please try again.");
+    } finally {
+      setShowDeleteModal(false);
+      setDeleteRequestId(null);
     }
   };
 
@@ -251,13 +272,24 @@ const AdoptionRequests = () => {
                         </button>
                         <button
                           onClick={() => handleReject(request.id)}
-                          className="text-red-600 hover:text-red-900"
+                          className="text-red-600 hover:text-red-900 mr-3"
                           title="Reject"
                         >
                           <RiCloseLine className="text-xl" />
                         </button>
                       </>
                     )}
+                    {/* Delete Button */}
+                    <button
+                      onClick={() => {
+                        setDeleteRequestId(request.id);
+                        setShowDeleteModal(true);
+                      }}
+                      className="text-gray-500 hover:text-red-600"
+                      title="Delete"
+                    >
+                      <RiDeleteBin6Line className="text-xl" />
+                    </button>
                   </td>
                 </tr>
               ))}
@@ -309,6 +341,30 @@ const AdoptionRequests = () => {
           </div>
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white rounded-lg shadow-lg p-6 max-w-sm w-full mx-4">
+            <h2 className="text-lg font-semibold text-gray-800 mb-4">Delete Adoption Request</h2>
+            <p className="mb-6 text-gray-700">Do you want to delete this adoption request?</p>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setShowDeleteModal(false)}
+                className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => handleDelete(deleteRequestId)}
+                className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
+              >
+                Yes, Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {showDetails && selectedRequest && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
