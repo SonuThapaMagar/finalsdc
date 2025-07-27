@@ -119,7 +119,30 @@ public class AdminController {
 //        List<AdoptionRequestResponse> requests = adoptionRequestService.getAllAdoptionRequests();
 //        return ResponseEntity.ok(requests);
 //    }
-    
+    @DeleteMapping("/adoption-request/{id}")
+    public ResponseEntity<?> deleteAdoptionRequest(@RequestHeader("Authorization") String authHeader,
+                                                  @PathVariable UUID id) {
+        try {
+            String token = authHeader.replace("Bearer ", "");
+            if (!jwtUtil.validateToken(token)) {
+                return ResponseEntity.status(401).body(new AuthController.ErrorResponse("Invalid token"));
+            }
+            Role role = jwtUtil.getRoleFromToken(token);
+            if (!Role.ADMIN.equals(role)) {
+                return ResponseEntity.status(403).body(new AuthController.ErrorResponse("Access denied: ADMIN role required"));
+            }
+
+            adoptionRequestService.deleteAdoptionRequest(id);
+            return ResponseEntity.ok(new SuccessResponse("Adoption request deleted successfully", null));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(404)
+                    .body(new AuthController.ErrorResponse("Adoption request not found: " + e.getMessage()));
+        } catch (Exception e) {
+            System.err.println("Error deleting adoption request: " + e.getMessage());
+            return ResponseEntity.status(500)
+                    .body(new AuthController.ErrorResponse("Error deleting adoption request: " + e.getMessage()));
+        }
+    }
 
 	
 

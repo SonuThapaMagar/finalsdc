@@ -124,6 +124,28 @@ public class AdoptionRequestService {
 		adoptionRequest = adoptionRequestRepository.save(adoptionRequest);
 		return mapToResponseDTO(adoptionRequest);
 	}
+	
+	@Transactional
+    public void deleteAdoptionRequest(UUID requestId) {
+        AdoptionRequest adoptionRequest = adoptionRequestRepository.findById(requestId)
+                .orElseThrow(() -> new IllegalArgumentException("Adoption request not found with ID: " + requestId));
+
+        Pet pet = adoptionRequest.getPet();
+        String userEmail = adoptionRequest.getUser().getEmail();
+        String petName = pet.getName();
+
+        // If the request was ACCEPTED, reset the pet's status to AVAILABLE
+        if (adoptionRequest.getStatus() == AdoptionRequestStatus.ACCEPTED) {
+            pet.setStatus("AVAILABLE");
+            petRepository.save(pet);
+        }
+
+        // Send notification email to the user
+        emailService.sendAdoptionRejection(userEmail, petName);
+
+        // Delete the adoption request
+        adoptionRequestRepository.delete(adoptionRequest);
+    }
 
 	private AdoptionRequestResponse mapToResponseDTO(AdoptionRequest adoptionRequest) {
 		AdoptionRequestResponse dto = new AdoptionRequestResponse();
