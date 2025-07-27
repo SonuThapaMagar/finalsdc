@@ -22,7 +22,7 @@ const EditPetCenter = () => {
             const userRole = localStorage.getItem('userRole');
             if (!token || userRole !== 'SUPERADMIN') {
                 setToastMsg({ type: 'error', text: 'No superadmin token found. Please log in.' });
-                navigate('/superadmin/login');
+                navigate('/admin/login');
                 return;
             }
             try {

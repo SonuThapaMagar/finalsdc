@@ -8,6 +8,7 @@ import {
   RiStore2Line,
   RiAppsLine,
   RiLogoutBoxLine,
+  RiAccountCircleLine,
 } from 'react-icons/ri';
 import { toast } from 'react-toastify';
 
@@ -38,7 +39,7 @@ const menuItems = [
   },
   {
     key: 'profile',
-    icon: <RiStore2Line className="text-lg" />,
+    icon: <RiAccountCircleLine className="text-lg" />,
     label: 'Profile',
     path: '/admin/adminProfile',
   },

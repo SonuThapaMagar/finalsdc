@@ -31,8 +31,6 @@ export default function PetCenterMgmt() {
     try {
       setIsLoading(true);
       setError(null);
-      const userRole = localStorage.getItem('userRole');
-      console.log('Fetching pet centers with token:', token, 'and role:', userRole);
       const response = await api.get(`/api/superadmin/pet-centers?page=${page}&size=${centersPerPage}`, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -45,7 +43,7 @@ export default function PetCenterMgmt() {
         name: center.shelterName || 'Unnamed Center',
         location: center.address || 'Unknown',
         contact: center.phone || 'N/A',
-        status: center.status || 'active', // Use backend status if available
+        status: center.status || 'active',
       })));
       setTotalPages(Math.ceil((data.totalElements || centersArr.length || 1) / centersPerPage));
     } catch (error) {
@@ -73,12 +71,6 @@ export default function PetCenterMgmt() {
   const handleDelete = async (petCenterId) => {
     try {
       const token = localStorage.getItem('token');
-      const userRole = localStorage.getItem('userRole');
-      if (!token || userRole !== 'SUPERADMIN') {
-        toast.error('Please log in to delete pet centers');
-        navigate('/superadmin/login');
-        return;
-      }
       await api.delete(`/api/superadmin/pet-centers/${petCenterId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -102,14 +94,11 @@ export default function PetCenterMgmt() {
   };
 
   const handleEdit = (petCenterId) => {
-    const token = localStorage.getItem('token');
-    const userRole = localStorage.getItem('userRole');
-    if (!token || userRole !== 'SUPERADMIN') {
-      toast.error('Please log in to edit pet centers');
-      navigate('/superadmin/login');
-      return;
-    }
     navigate(`/superadmin/pet-centers/edit/${petCenterId}`);
+  };
+
+  const handleViewDetails = (petCenterId) => {
+    navigate(`/superadmin/pet-centers/view-details/${petCenterId}`);
   };
 
   if (isLoading) {
@@ -140,6 +129,7 @@ export default function PetCenterMgmt() {
         petCenters={petCenters}
         onEdit={handleEdit}
         onDelete={petCenterId => setDeletePetCenterId(petCenterId)}
+        onViewDetails={handleViewDetails}
       />
       {/* Pagination Controls */}
       <div className="flex justify-center items-center py-4">

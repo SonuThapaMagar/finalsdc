@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../../api/api';
 import { toast } from 'react-toastify';
-import { RiEdit2Line, RiSaveLine, RiCloseLine } from 'react-icons/ri';
+import { RiEdit2Line, RiSaveLine, RiCloseLine, RiAccountCircleFill } from 'react-icons/ri';
 
 const PetCenterProfile = () => {
   const navigate = useNavigate();
@@ -11,7 +11,7 @@ const PetCenterProfile = () => {
     email: '',
     phone: '',
     address: '',
-    description: ''
+    description: '',
   });
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
@@ -35,27 +35,31 @@ const PetCenterProfile = () => {
       setFetchError('');
       console.log('Fetching profile with token:', localStorage.getItem('token'));
       const response = await api.get('/api/admin/profile');
-      console.log('Profile response:', response);
+      console.log('Full API response:', JSON.stringify(response, null, 2));
       const data = response.data.data || response.data;
       setProfile({
         shelterName: data.shelterName || '',
         email: data.email || '',
         phone: data.phone || '',
         address: data.address || '',
-        description: data.description || ''
+        description: data.description || '',
       });
     } catch (error) {
       console.error('Failed to fetch profile:', error);
       console.error('Error details:', {
         status: error.response?.status,
         data: error.response?.data,
-        message: error.message
+        message: error.message,
       });
       const message = error.response?.data?.message || 'Failed to load profile. Please try again.';
       setFetchError(message);
       toast.error(message);
-      // Don't automatically logout on profile fetch errors
-      // Let the user see the error message instead
+      if (error.response?.status === 401 || error.response?.status === 403) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('userId');
+        localStorage.removeItem('userRole');
+        navigate('/admin/login');
+      }
     } finally {
       setLoading(false);
     }
@@ -63,8 +67,8 @@ const PetCenterProfile = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setProfile(prev => ({ ...prev, [name]: value }));
-    setErrors(prev => ({ ...prev, [name]: undefined }));
+    setProfile((prev) => ({ ...prev, [name]: value }));
+    setErrors((prev) => ({ ...prev, [name]: undefined }));
   };
 
   const validateForm = () => {
@@ -73,8 +77,10 @@ const PetCenterProfile = () => {
     if (!profile.email.trim()) newErrors.email = 'Email is required.';
     else if (!/\S+@\S+\.\S+/.test(profile.email)) newErrors.email = 'Invalid email format.';
     if (!profile.phone.trim()) newErrors.phone = 'Phone is required.';
+    else if (!/^\+?[1-9]\d{0,15}$/.test(profile.phone.replace(/\s|-/g, ''))) {
+      newErrors.phone = 'Invalid phone number format.';
+    }
     if (!profile.address.trim()) newErrors.address = 'Address is required.';
-    if (!profile.description.trim()) newErrors.description = 'Description is required.';
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -90,7 +96,7 @@ const PetCenterProfile = () => {
         email: profile.email,
         phone: profile.phone,
         address: profile.address,
-        description: profile.description
+        description: profile.description || null, // Allow null for optional fields
       };
       await api.put('/api/admin/profile', updateRequest);
       toast.success('Profile updated successfully!');
@@ -127,9 +133,15 @@ const PetCenterProfile = () => {
     <div className="p-6 bg-gray-100 min-h-screen">
       <div className="max-w-2xl mx-auto">
         <div className="mb-6 flex justify-between items-center">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-800">Pet Center Profile</h1>
-            <p className="text-gray-600 mt-2">Manage your pet center information</p>
+          <div className="flex items-center gap-4">
+            {/* Avatar Icon */}
+            <div className="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center">
+              <RiAccountCircleFill className="text-blue-500 text-5xl" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-gray-800">Pet Center Profile</h1>
+              <p className="text-gray-600 mt-2">Manage your pet center information</p>
+            </div>
           </div>
           {!editing && !fetchError && (
             <button
@@ -148,23 +160,25 @@ const PetCenterProfile = () => {
             <div className="space-y-4">
               <div>
                 <span className="block text-sm text-gray-500">Shelter Name</span>
-                <span className="block text-lg text-gray-900 font-medium">{profile.shelterName}</span>
+                <span className="block text-lg text-gray-900 font-medium">
+                  {profile.shelterName || 'Not provided'}
+                </span>
               </div>
               <div>
                 <span className="block text-sm text-gray-500">Email</span>
-                <span className="block text-lg text-gray-900">{profile.email}</span>
+                <span className="block text-lg text-gray-900">{profile.email || 'Not provided'}</span>
               </div>
               <div>
                 <span className="block text-sm text-gray-500">Phone</span>
-                <span className="block text-lg text-gray-900">{profile.phone}</span>
+                <span className="block text-lg text-gray-900">{profile.phone || 'Not provided'}</span>
               </div>
               <div>
                 <span className="block text-sm text-gray-500">Address</span>
-                <span className="block text-lg text-gray-900">{profile.address}</span>
+                <span className="block text-lg text-gray-900">{profile.address || 'Not provided'}</span>
               </div>
               <div>
                 <span className="block text-sm text-gray-500">Description</span>
-                <span className="block text-lg text-gray-900">{profile.description}</span>
+                <span className="block text-lg text-gray-900">{profile.description || 'Not provided'}</span>
               </div>
             </div>
           ) : (
@@ -236,7 +250,7 @@ const PetCenterProfile = () => {
                 </div>
                 <div className="md:col-span-2">
                   <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
-                    Description *
+                    Description
                   </label>
                   <textarea
                     id="description"

@@ -1,4 +1,3 @@
-// AppRoutes.jsx
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "../pages/user/pages/auth-provider";
 import UserLogin from "../pages/user/auth/Login";
@@ -11,6 +10,7 @@ import PetMgmt from "../pages/superadmin/pages/PetMgmt";
 import EditUserPage from "../pages/superadmin/pages/EditUser";
 import EditPet from "../pages/superadmin/pages/EditPet";
 import EditPetCenter from "../pages/superadmin/pages/EditPetCenter";
+import ViewPetCenterDetails from "../pages/superadmin/pages/ViewPetCenterDetails"; 
 import AdminLayout from "../pages/admin/layout/AdminLayout";
 import AdminDashboard from "../pages/admin/pages/AdminDashboard";
 import AdoptionRequests from "../pages/admin/pages/AdoptionRequests";
@@ -35,7 +35,7 @@ import ChangePassword from "../pages/user/pages/ChangePassword";
 import LostFound from "../pages/user/pages/LostFound";
 import MyAdoptions from "../pages/user/pages/MyAdoptions";
 
-// Route Guard Components
+// Route Guard Components (unchanged)
 const ProtectedRoute = ({ children, requiredRole }) => {
   const { user, isAuthenticated, isLoading } = useAuth();
   
@@ -232,6 +232,7 @@ export default function AppRoutes() {
         <Route path="pet-centers/edit/:centerId" element={<EditPetCenter />} />
         <Route path="pets" element={<PetMgmt />} />
         <Route path="pets/edit/:petId" element={<EditPet />} />
+        <Route path="pet-centers/view-details/:centerId" element={<ViewPetCenterDetails />} /> {/* New route */}
       </Route>
 
       {/* Catch all route for 404 */}

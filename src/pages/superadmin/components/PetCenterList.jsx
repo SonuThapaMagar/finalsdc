@@ -1,7 +1,7 @@
 import React from 'react';
 import { FaEdit, FaTrash } from 'react-icons/fa';
 
-export default function PetCenterList({ petCenters, onEdit, onDelete }) {
+export default function PetCenterList({ petCenters, onEdit, onDelete, onViewDetails }) {
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden">
       <div className="overflow-x-auto">
@@ -9,16 +9,19 @@ export default function PetCenterList({ petCenters, onEdit, onDelete }) {
           <thead className="bg-gray-50">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Name
+                Shelter Name
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Location
+                Address
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Contact
+                Phone
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Status
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Details
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Actions
@@ -46,6 +49,14 @@ export default function PetCenterList({ petCenters, onEdit, onDelete }) {
                     {center.status}
                   </span>
                 </td>
+                <td>
+                  <button
+                    onClick={() => onViewDetails(center.id)}
+                    className="text-blue-600 hover:text-blue-900 mr-4"
+                  >
+                    View Details
+                  </button>
+                </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                   <button
                     onClick={() => onEdit(center.id)}
@@ -67,4 +78,4 @@ export default function PetCenterList({ petCenters, onEdit, onDelete }) {
       </div>
     </div>
   );
-} 
+}

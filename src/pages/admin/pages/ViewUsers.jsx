@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import UserList from '../../superadmin/components/UserList';
 import UserDeleteDialog from '../../superadmin/components/UserDeleteDialog';
 import { toast } from 'react-toastify';
 import api from '../../../api/api';
+import UserLists from './UserLists';
 
 export default function ViewUsers() {
   const navigate = useNavigate();
@@ -60,9 +60,9 @@ export default function ViewUsers() {
     }
   };
 
-  const handleEdit = (userId) => {
-    navigate(`/admin/users/edit/${userId}`);
-  };
+  // const handleEdit = (userId) => {
+  //   navigate(`/admin/users/edit/${userId}`);
+  // };
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
@@ -133,7 +133,7 @@ export default function ViewUsers() {
         Showing {users.length} of {totalUsers} users
       </div>
       
-      <UserList
+      <UserLists
         users={users}
         // 
         
