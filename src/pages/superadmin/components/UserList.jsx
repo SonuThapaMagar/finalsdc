@@ -1,5 +1,5 @@
-import React from 'react';
-import { RiEdit2Line, RiDeleteBin6Line } from 'react-icons/ri';
+import React from "react";
+import { RiEdit2Line, RiDeleteBin6Line } from "react-icons/ri";
 
 export default function UserList({ users, onEdit, onDelete }) {
   return (
@@ -15,10 +15,10 @@ export default function UserList({ users, onEdit, onDelete }) {
                 Email
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Role
+                Phone
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Status
+                Address
               </th>
               <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Actions
@@ -38,7 +38,9 @@ export default function UserList({ users, onEdit, onDelete }) {
                       </div>
                     </div>
                     <div className="ml-4">
-                      <div className="text-sm font-medium text-gray-900">{user.fullName}</div>
+                      <div className="text-sm font-medium text-gray-900">
+                        {user.fullName}
+                      </div>
                     </div>
                   </div>
                 </td>
@@ -47,16 +49,12 @@ export default function UserList({ users, onEdit, onDelete }) {
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
-                    {user.role}
+                    {user.phone}
                   </span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                    user.status === 'active' 
-                      ? 'bg-green-100 text-green-800' 
-                      : 'bg-red-100 text-red-800'
-                  }`}>
-                    {user.status}
+                  <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full">
+                    {user.address}
                   </span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">

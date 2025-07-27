@@ -10,8 +10,8 @@ export default function UserManagement() {
   const navigate = useNavigate();
   const [users, setUsers] = useState([]);
   const [totalUsers, setTotalUsers] = useState(0);
-  const [monthlyStats, setMonthlyStats] = useState([]); // New state for monthly stats
-  const [currentPage, setCurrentPage] = useState(0); // zero-based
+  const [monthlyStats, setMonthlyStats] = useState([]); 
+  const [currentPage, setCurrentPage] = useState(0); 
   const [deleteUserId, setDeleteUserId] = useState(null);
   const usersPerPage = 5;
 

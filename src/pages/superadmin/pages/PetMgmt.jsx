@@ -1,73 +1,102 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import api from '../../../api/api';
-import { RiFileExcel2Line, RiEdit2Line, RiDeleteBin6Line } from 'react-icons/ri';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, PieChart, Pie, Cell } from 'recharts';
-import { toast } from 'react-toastify';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import api from "../../../api/api";
+import { RiFileExcel2Line, RiEdit2Line } from "react-icons/ri";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  CartesianGrid,
+  PieChart,
+  Pie,
+  Cell,
+} from "recharts";
+import { toast } from "react-toastify";
 
 const PetMgmt = () => {
   const navigate = useNavigate();
   const [pets, setPets] = useState([]);
   const [petStats, setPetStats] = useState([]);
   const [statusData, setStatusData] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [tableLoading, setTableLoading] = useState(true); // Separate loading for table
   const [deletePetId, setDeletePetId] = useState(null);
   const [currentPage, setCurrentPage] = useState(0); // zero-based
   const [totalPages, setTotalPages] = useState(1);
   const petsPerPage = 5;
 
+  // Initial load and authentication check
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    const userRole = localStorage.getItem('userRole');
-    if (!token || userRole !== 'SUPERADMIN') {
-      toast.error('Please log in to access pet management');
-      navigate('/superadmin/login');
+    const token = localStorage.getItem("token");
+    const userRole = localStorage.getItem("userRole");
+    if (!token || userRole !== "SUPERADMIN") {
+      toast.error("Please log in to access pet management");
+      navigate("/superadmin/login");
       return;
     }
-    fetchData(currentPage);
-  }, [navigate, currentPage]);
+    // Fetch charts data (only on initial load)
+    const fetchInitialData = async () => {
+      try {
+        const monthlyStatsResponse = await api.get("/api/superadmin/dashboard/monthly-stats");
+        const mappedPetStats = monthlyStatsResponse.data.map((stat) => ({
+          month: stat.month,
+          pets: stat.pets,
+        }));
+        setPetStats(mappedPetStats);
 
-  const fetchData = async (page = 0) => {
-    try {
-      setLoading(true);
-
-      // Fetch pets with pagination
-      const petsResponse = await api.get(`/api/superadmin/pets?page=${page}&size=${petsPerPage}`);
-      const data = petsResponse.data;
-      if (data && typeof data === 'object') {
-        setPets(data.content || data);
-        setTotalPages(Math.ceil((data.totalElements || data.length || 1) / petsPerPage));
-      } else {
-        setPets([]);
-        setTotalPages(1);
+        const statusResponse = await api.get("/api/superadmin/dashboard/pet-status");
+        setStatusData(statusResponse.data);
+      } catch (error) {
+        console.error("Failed to fetch initial data:", error);
+        if (error.response?.status === 403) {
+          toast.error("Permission denied. Ensure you have SUPERADMIN role.");
+          navigate("/superadmin/login");
+        } else if (error.response?.status === 401) {
+          toast.error("Please log in to view pets");
+          navigate("/superadmin/login");
+        } else {
+          toast.error("Failed to fetch data. Please try again.");
+        }
       }
+    };
+    fetchInitialData();
+  }, [navigate]);
 
-      // Fetch monthly stats
-      const monthlyStatsResponse = await api.get('/api/superadmin/dashboard/monthly-stats');
-      const mappedPetStats = monthlyStatsResponse.data.map(stat => ({
-        month: stat.month,
-        pets: stat.pets,
-      }));
-      setPetStats(mappedPetStats);
-
-      // Fetch pet status
-      const statusResponse = await api.get('/api/superadmin/dashboard/pet-status');
-      setStatusData(statusResponse.data);
-    } catch (error) {
-      console.error('Failed to fetch data:', error);
-      if (error.response?.status === 403) {
-        toast.error('Permission denied. Ensure you have SUPERADMIN role.');
-        navigate('/superadmin/login');
-      } else if (error.response?.status === 401) {
-        toast.error('Please log in to view pets');
-        navigate('/superadmin/login');
-      } else {
-        toast.error('Failed to fetch data. Please try again.');
+  // Fetch table data (pets) when currentPage changes
+  useEffect(() => {
+    const fetchData = async () => {
+      setTableLoading(true);
+      try {
+        const petsResponse = await api.get(
+          `/api/superadmin/pets?page=${currentPage}&size=${petsPerPage}`
+        );
+        const data = petsResponse.data;
+        if (data && typeof data === "object") {
+          setPets(data.content || []);
+          setTotalPages(data.totalPages || 1);
+        } else {
+          setPets([]);
+          setTotalPages(1);
+        }
+      } catch (error) {
+        console.error("Failed to fetch pets:", error);
+        if (error.response?.status === 403) {
+          toast.error("Permission denied. Ensure you have SUPERADMIN role.");
+          navigate("/superadmin/login");
+        } else if (error.response?.status === 401) {
+          toast.error("Please log in to view pets");
+          navigate("/superadmin/login");
+        } else {
+          toast.error("Failed to fetch data. Please try again.");
+        }
+      } finally {
+        setTableLoading(false);
       }
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
+    fetchData();
+  }, [currentPage]); // Removed navigate from dependency array
 
   const handleEdit = (petId) => {
     navigate(`/superadmin/pets/edit/${petId}`);
@@ -76,38 +105,30 @@ const PetMgmt = () => {
   const handleDelete = async (petId) => {
     try {
       await api.delete(`/api/superadmin/pets/${petId}`);
-      setPets(pets.filter(p => p.id !== petId));
-      toast.success('Pet deleted successfully!');
+      setPets(pets.filter((p) => p.id !== petId));
+      toast.success("Pet deleted successfully!");
       setDeletePetId(null);
     } catch (error) {
-      console.error('Delete error:', error);
+      console.error("Delete error:", error);
       if (error.response?.status === 403) {
-        toast.error('Permission denied. Ensure you have SUPERADMIN role.');
+        toast.error("Permission denied. Ensure you have SUPERADMIN role.");
       } else if (error.response?.status === 401) {
-        toast.error('Please log in to delete pets');
-        navigate('/superadmin/login');
+        toast.error("Please log in to delete pets");
+        navigate("/superadmin/login");
       } else {
-        toast.error('Failed to delete pet. Please try again.');
+        toast.error("Failed to delete pet. Please try again.");
       }
     }
   };
 
   const handleExport = () => {
-    import('xlsx').then(XLSX => {
+    import("xlsx").then((XLSX) => {
       const worksheet = XLSX.utils.json_to_sheet(pets);
       const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, 'Pets');
-      XLSX.writeFile(workbook, 'pets.xlsx');
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Pets");
+      XLSX.writeFile(workbook, "pets.xlsx");
     });
   };
-
-  if (loading) {
-    return (
-      <div className="p-6 bg-gray-100 min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
-      </div>
-    );
-  }
 
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
@@ -128,7 +149,10 @@ const PetMgmt = () => {
           </div>
           <div className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={petStats} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+              <BarChart
+                data={petStats}
+                margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+              >
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="month" />
                 <YAxis />
@@ -167,81 +191,102 @@ const PetMgmt = () => {
       {/* Table Section */}
       <div className="bg-white rounded-lg shadow-md overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Breed</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Age</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Gender</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {pets.map((pet) => (
-                <tr key={pet.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center">
-                      <div className="flex-shrink-0 h-10 w-10">
-                        <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
-                          <span className="text-gray-500 font-medium">
-                            {pet.name?.charAt(0).toUpperCase()}
-                          </span>
+          {tableLoading ? (
+            <div className="p-6 flex items-center justify-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+            </div>
+          ) : (
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Name
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Breed
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Age
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Gender
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Location
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Status
+                  </th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {pets.map((pet) => (
+                  <tr key={pet.id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center">
+                        <div className="flex-shrink-0 h-10 w-10">
+                          <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
+                            <span className="text-gray-500 font-medium">
+                              {pet.name?.charAt(0).toUpperCase()}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="ml-4">
+                          <div className="text-sm font-medium text-gray-900">
+                            {pet.name}
+                          </div>
                         </div>
                       </div>
-                      <div className="ml-4">
-                        <div className="text-sm font-medium text-gray-900">{pet.name}</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">{pet.breed}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">{pet.age}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">{pet.gender}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">{pet.location}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      pet.status === 'AVAILABLE' 
-                        ? 'bg-green-100 text-green-800' 
-                        : 'bg-blue-100 text-blue-800'
-                    }`}>
-                      {pet.status}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <button
-                      onClick={() => handleEdit(pet.id)}
-                      className="text-blue-600 hover:text-blue-900 mr-4"
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-900">{pet.breed}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-900">{pet.age}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-900">{pet.gender}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm text-gray-900">{pet.location}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span
+                        className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          pet.status === "AVAILABLE"
+                            ? "bg-green-100 text-green-800"
+                            : "bg-blue-100 text-blue-800"
+                        }`}
+                      >
+                        {pet.status}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <button
+                        onClick={() => handleEdit(pet.id)}
+                        className="text-blue-600 hover:text-blue-900 mr-4"
+                      >
+                        <RiEdit2Line className="text-xl" />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+                {pets.length === 0 && (
+                  <tr>
+                    <td
+                      colSpan={7}
+                      className="px-6 py-4 text-center text-gray-500"
                     >
-                      <RiEdit2Line className="text-xl" />
-                    </button>
-                    <button
-                      onClick={() => setDeletePetId(pet.id)}
-                      className="text-red-600 hover:text-red-900"
-                    >
-                      <RiDeleteBin6Line className="text-xl" />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-              {pets.length === 0 && (
-                <tr>
-                  <td colSpan={7} className="px-6 py-4 text-center text-gray-500">
-                    No pets found
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+                      No pets found
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          )}
         </div>
         {/* Pagination Controls */}
         <div className="flex justify-center items-center py-4">
@@ -252,10 +297,14 @@ const PetMgmt = () => {
           >
             Prev
           </button>
-          <span className="mx-2">Page {currentPage + 1} of {totalPages}</span>
+          <span className="mx-2">
+            Page {currentPage + 1} of {totalPages}
+          </span>
           <button
             className="px-3 py-1 mx-1 rounded bg-gray-200 hover:bg-gray-300 disabled:opacity-50"
-            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages - 1))}
+            onClick={() =>
+              setCurrentPage((prev) => Math.min(prev + 1, totalPages - 1))
+            }
             disabled={currentPage >= totalPages - 1}
           >
             Next
@@ -269,7 +318,8 @@ const PetMgmt = () => {
           <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-sm">
             <div className="font-semibold text-lg mb-2">Are you sure?</div>
             <div className="text-gray-600 mb-4">
-              This action cannot be undone. This will permanently delete the pet and remove their data from our servers.
+              This action cannot be undone. This will permanently delete the pet
+              and remove their data from our servers.
             </div>
             <div className="flex justify-end gap-2">
               <button
