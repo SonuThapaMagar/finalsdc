@@ -5,6 +5,8 @@ import com.furEverHome.dto.PetResponse;
 import com.furEverHome.entity.Pet;
 import com.furEverHome.repository.PetRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,13 +24,13 @@ public class PetService {
 		this.petRepository = petRepository;
 	}
 
-	public List<PetResponse> getAllPets() {
-		try {
-			return petRepository.findAll().stream().map(this::mapToPetResponse).collect(Collectors.toList());
-		} catch (Exception e) {
-			throw new RuntimeException("Failed to fetch pets: " + e.getMessage(), e);
-		}
-	}
+	public Page<PetResponse> getAllPets(Pageable pageable) {
+        try {
+            return petRepository.findAll(pageable).map(this::mapToPetResponse);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to fetch pets: " + e.getMessage(), e);
+        }
+    }
 
 	public Pet getPetById(UUID id) {
 		return petRepository.findById(id)

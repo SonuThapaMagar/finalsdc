@@ -122,21 +122,38 @@ public class SuperAdminController {
 		return ResponseEntity.ok(petCenters);
 	}
 
+//	@GetMapping("/pet-centers/{id}")
+//	public ResponseEntity<?> getPetCenterById(@RequestHeader("Authorization") String token, @PathVariable UUID id) {
+//		if (!jwtUtil.getRoleFromToken(token.substring(7)).equals(Role.SUPERADMIN)) {
+//			return ResponseEntity.status(403).body(new AuthController.ErrorResponse("User must have SUPERADMIN role"));
+//		}
+//		try {
+//			PetCenter petCenter = petCenterService.getPetCenterById(id);
+//			AdminProfileResponse response = mapToAdminProfileResponse(petCenter);
+//			return ResponseEntity.ok(response);
+//		} catch (IllegalArgumentException e) {
+//			return ResponseEntity.badRequest().body(new AuthController.ErrorResponse(e.getMessage()));
+//		} catch (Exception e) {
+//			return ResponseEntity.status(500)
+//					.body(new AuthController.ErrorResponse("Failed to fetch pet center: " + e.getMessage()));
+//		}
+//	}
 	@GetMapping("/pet-centers/{id}")
 	public ResponseEntity<?> getPetCenterById(@RequestHeader("Authorization") String token, @PathVariable UUID id) {
-		if (!jwtUtil.getRoleFromToken(token.substring(7)).equals(Role.SUPERADMIN)) {
-			return ResponseEntity.status(403).body(new AuthController.ErrorResponse("User must have SUPERADMIN role"));
-		}
-		try {
-			PetCenter petCenter = petCenterService.getPetCenterById(id);
-			AdminProfileResponse response = mapToAdminProfileResponse(petCenter);
-			return ResponseEntity.ok(response);
-		} catch (IllegalArgumentException e) {
-			return ResponseEntity.badRequest().body(new AuthController.ErrorResponse(e.getMessage()));
-		} catch (Exception e) {
-			return ResponseEntity.status(500)
-					.body(new AuthController.ErrorResponse("Failed to fetch pet center: " + e.getMessage()));
-		}
+	    if (!jwtUtil.getRoleFromToken(token.substring(7)).equals(Role.SUPERADMIN)) {
+	        return ResponseEntity.status(403).body(new AuthController.ErrorResponse("User must have SUPERADMIN role"));
+	    }
+	    try {
+	        PetCenter petCenter = petCenterService.getPetCenterById(id);
+	        if (petCenter == null) {
+	            return ResponseEntity.status(404).body(new AuthController.ErrorResponse("Pet center not found"));
+	        }
+	        AdminProfileResponse response = mapToAdminProfileResponse(petCenter);
+	        return ResponseEntity.ok(response);
+	    } catch (Exception e) {
+	        return ResponseEntity.status(500)
+	                .body(new AuthController.ErrorResponse("Failed to fetch pet center: " + e.getMessage()));
+	    }
 	}
 
 	@PutMapping("/pet-centers/{id}")
@@ -172,18 +189,34 @@ public class SuperAdminController {
 		}
 	}
 
+//	@GetMapping("/pets")
+//	public ResponseEntity<?> getAllPets(@RequestHeader("Authorization") String token) {
+//		if (!jwtUtil.getRoleFromToken(token.substring(7)).equals(Role.SUPERADMIN)) {
+//			return ResponseEntity.status(403).body(new AuthController.ErrorResponse("User must have SUPERADMIN role"));
+//		}
+//		try {
+//			List<PetResponse> pets = petService.getAllPets();
+//			return ResponseEntity.ok(pets);
+//		} catch (Exception e) {
+//			return ResponseEntity.status(500)
+//					.body(new AuthController.ErrorResponse("Failed to fetch pets: " + e.getMessage()));
+//		}
+//	}
 	@GetMapping("/pets")
-	public ResponseEntity<?> getAllPets(@RequestHeader("Authorization") String token) {
-		if (!jwtUtil.getRoleFromToken(token.substring(7)).equals(Role.SUPERADMIN)) {
-			return ResponseEntity.status(403).body(new AuthController.ErrorResponse("User must have SUPERADMIN role"));
-		}
-		try {
-			List<PetResponse> pets = petService.getAllPets();
-			return ResponseEntity.ok(pets);
-		} catch (Exception e) {
-			return ResponseEntity.status(500)
-					.body(new AuthController.ErrorResponse("Failed to fetch pets: " + e.getMessage()));
-		}
+	public ResponseEntity<?> getAllPets(@RequestHeader("Authorization") String token,
+	                                   @RequestParam(defaultValue = "0") int page,
+	                                   @RequestParam(defaultValue = "5") int size) {
+	    if (!jwtUtil.getRoleFromToken(token.substring(7)).equals(Role.SUPERADMIN)) {
+	        return ResponseEntity.status(403).body(new AuthController.ErrorResponse("User must have SUPERADMIN role"));
+	    }
+	    try {
+	        Pageable pageable = PageRequest.of(page, size); // Zero-based page
+	        Page<PetResponse> petPage = petService.getAllPets(pageable);
+	        return ResponseEntity.ok(petPage);
+	    } catch (Exception e) {
+	        return ResponseEntity.status(500)
+	                .body(new AuthController.ErrorResponse("Failed to fetch pets: " + e.getMessage()));
+	    }
 	}
 
 	@GetMapping("/pets/{id}")

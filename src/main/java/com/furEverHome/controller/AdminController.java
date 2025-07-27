@@ -104,6 +104,27 @@ public class AdminController {
         }
     }
 
+    @GetMapping("/profile")
+    public ResponseEntity<?> getAdminProfile(@RequestHeader("Authorization") String token) {
+        try {
+            String tokenValue = token.substring(7); // Remove "Bearer " prefix
+            if (!jwtUtil.getRoleFromToken(tokenValue).equals(Role.ADMIN)) {
+                return ResponseEntity.status(403)
+                        .body(new AuthController.ErrorResponse("User must have ADMIN role to view profile"));
+            }
+            String email = jwtUtil.getEmailFromToken(tokenValue);
+            System.out.println("Fetching profile for email: " + email); // Debug
+            AdminProfileResponse profile = petCenterService.getAdminProfileByEmail(email);
+            return ResponseEntity.ok(new SuccessResponse("Admin profile retrieved successfully", profile));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(404)
+                    .body(new AuthController.ErrorResponse("Profile not found: " + e.getMessage()));
+        } catch (Exception e) {
+            System.err.println("Error fetching profile: " + e.getMessage());
+            return ResponseEntity.status(403)
+                    .body(new AuthController.ErrorResponse("Invalid token or access denied: " + e.getMessage()));
+        }
+    }
     
     @PutMapping("/profile")
     public ResponseEntity<?> updateAdminProfile(@RequestHeader("Authorization") String token,
