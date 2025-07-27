@@ -10,25 +10,29 @@ const AdoptionRequests = () => {
   const [loading, setLoading] = useState(true);
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [showDetails, setShowDetails] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [itemsPerPage] = useState(10); 
 
   useEffect(() => {
-    const token = localStorage.getItem("jwtToken");
+    const token = localStorage.getItem("token");
     const userRole = localStorage.getItem("userRole");
     if (!token || userRole !== "ADMIN") {
       toast.error("Please log in as an admin to access adoption requests");
       navigate("/admin/login");
       return;
     }
-    fetchAdoptionRequests();
-  }, [navigate]);
+    fetchAdoptionRequests(currentPage);
+  }, [navigate, currentPage]);
 
-  const fetchAdoptionRequests = async () => {
+  const fetchAdoptionRequests = async (page) => {
     try {
       setLoading(true);
-      const response = await api.get("/api/admin/adoption-requests", {
+      const response = await api.get(`/api/admin/adoption-requests?page=${page - 1}&size=${itemsPerPage}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("jwtToken")}` },
       });
-      setAdoptionRequests(response.data);
+      setAdoptionRequests(response.data.content);
+      setTotalPages(response.data.totalPages);
     } catch (error) {
       console.error("Failed to fetch adoption requests:", error);
       if (error.response?.status === 403) {
@@ -54,7 +58,6 @@ const AdoptionRequests = () => {
         prev.map(req => req.id === requestId ? { ...req, status: "ACCEPTED" } : req)
       );
       toast.success("Adoption request approved successfully!");
-      // fetchAdoptionRequests(); // Remove this line for instant update
     } catch (error) {
       console.error("Approve error:", error);
       toast.error("Failed to approve adoption request. Please try again.");
@@ -70,7 +73,6 @@ const AdoptionRequests = () => {
         prev.map(req => req.id === requestId ? { ...req, status: "REJECTED" } : req)
       );
       toast.success("Adoption request rejected successfully!");
-      // fetchAdoptionRequests(); // Remove this line for instant update
     } catch (error) {
       console.error("Reject error:", error);
       toast.error("Failed to reject adoption request. Please try again.");
@@ -94,6 +96,12 @@ const AdoptionRequests = () => {
         {status}
       </span>
     );
+  };
+
+  const handlePageChange = (page) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
   };
 
   if (loading) {
@@ -191,7 +199,7 @@ const AdoptionRequests = () => {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Status
                 </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 connective tissue text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
@@ -210,13 +218,11 @@ const AdoptionRequests = () => {
                       </div>
                       <div className="ml-4">
                         <div className="text-sm font-medium text-gray-900">{request.userEmail}</div>
-                        {/* Assuming userEmail is used as a placeholder for requester name */}
                       </div>
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm font-medium text-gray-900">{request.petName}</div>
-                    {/* Add petBreed if available in the response */}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm text-gray-900">
@@ -265,6 +271,43 @@ const AdoptionRequests = () => {
             </tbody>
           </table>
         </div>
+        {/* Pagination Controls */}
+        <div className="flex justify-between items-center px-6 py-4 bg-gray-50">
+          <div className="text-sm text-gray-700">
+            Showing {(currentPage - 1) * itemsPerPage + 1} to{" "}
+            {Math.min(currentPage * itemsPerPage, adoptionRequests.length)} of{" "}
+            {totalPages * itemsPerPage} entries
+          </div>
+          <div className="flex space-x-2">
+            <button
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+              className="px-4 py-2 bg-gray-200 text-gray-700 rounded disabled:opacity-50"
+            >
+              Previous
+            </button>
+            {[...Array(totalPages).keys()].map((page) => (
+              <button
+                key={page + 1}
+                onClick={() => handlePageChange(page + 1)}
+                className={`px-4 py-2 rounded ${
+                  currentPage === page + 1
+                    ? "bg-blue-600 text-white"
+                    : "bg-gray-200 text-gray-700"
+                }`}
+              >
+                {page + 1}
+              </button>
+            ))}
+            <button
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              className="px-4 py-2 bg-gray-200 text-gray-700 rounded disabled:opacity-50"
+            >
+              Next
+            </button>
+          </div>
+        </div>
       </div>
 
       {showDetails && selectedRequest && (
@@ -286,7 +329,6 @@ const AdoptionRequests = () => {
                   <h3 className="font-medium text-gray-800 mb-2">Requester Information</h3>
                   <div className="bg-gray-50 p-3 rounded">
                     <p><strong>Email:</strong> {selectedRequest.userEmail}</p>
-                    {/* Add more fields if available, e.g., address, phone */}
                   </div>
                 </div>
 
@@ -294,7 +336,6 @@ const AdoptionRequests = () => {
                   <h3 className="font-medium text-gray-800 mb-2">Pet Information</h3>
                   <div className="bg-gray-50 p-3 rounded">
                     <p><strong>Name:</strong> {selectedRequest.petName}</p>
-                    {/* Add breed, age, etc., if available */}
                   </div>
                 </div>
               </div>
