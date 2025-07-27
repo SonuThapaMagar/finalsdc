@@ -1,10 +1,15 @@
 package com.furEverHome.controller;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.furEverHome.dto.AdminProfileResponse;
@@ -12,8 +17,10 @@ import com.furEverHome.dto.AdminProfileUpdateRequest;
 import com.furEverHome.dto.AdoptionRequestResponse;
 import com.furEverHome.dto.AdoptionRequestStatusUpdate;
 import com.furEverHome.dto.UserResponse;
+import com.furEverHome.entity.PetCenter;
 import com.furEverHome.entity.Role;
 import com.furEverHome.entity.User;
+import com.furEverHome.repository.PetCenterRepository;
 import com.furEverHome.repository.UserRepository;
 import com.furEverHome.service.AdoptionRequestService;
 import com.furEverHome.service.PetCenterService;
@@ -27,14 +34,16 @@ public class AdminController {
     private final AdoptionRequestService adoptionRequestService;
     private final PetCenterService petCenterService;
     private final UserRepository userRepository;
+    private final PetCenterRepository petCenterRepository;
 
     @Autowired
     public AdminController(JwtUtil jwtUtil, AdoptionRequestService adoptionRequestService,
-                           PetCenterService petCenterService, UserRepository userRepository) {
+                           PetCenterService petCenterService, UserRepository userRepository,PetCenterRepository petCenterRepository) {
         this.jwtUtil = jwtUtil;
         this.adoptionRequestService = adoptionRequestService;
         this.petCenterService = petCenterService;
         this.userRepository = userRepository;
+		this.petCenterRepository = petCenterRepository;
     }
 
     @GetMapping("/users")
@@ -59,15 +68,60 @@ public class AdminController {
     }
 
     @GetMapping("/adoption-requests")
-    public ResponseEntity<?> getAllAdoptionRequests(@RequestHeader("Authorization") String token) {
-        String tokenValue = token.substring(7);
-        if (!jwtUtil.getRoleFromToken(tokenValue).equals(Role.ADMIN)) {
-            return ResponseEntity.status(403)
-                    .body(new AuthController.ErrorResponse("User must have ADMIN role to view adoption requests"));
+    public ResponseEntity<?> getAdoptionRequests(
+            @RequestHeader("Authorization") String authHeader,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        try {
+            String token = authHeader.replace("Bearer ", "");
+            if (!jwtUtil.validateToken(token)) {
+                return ResponseEntity.status(401).body(new AuthController.ErrorResponse("Invalid token"));
+            }
+            Role role = jwtUtil.getRoleFromToken(token);
+            if (!Role.ADMIN.equals(role)) {
+                return ResponseEntity.status(403).body(new AuthController.ErrorResponse("Access denied: ADMIN role required"));
+            }
+
+            String email = jwtUtil.getEmailFromToken(token);
+            System.out.println("Fetching PetCenter for email: " + email);
+            PetCenter petCenter = petCenterRepository.findByEmail(email)
+                    .orElse(null);
+            if (petCenter == null) {
+                return ResponseEntity.status(404)
+                        .body(new AuthController.ErrorResponse("Pet Center not found for email: " + email));
+            }
+
+            Pageable pageable = PageRequest.of(page, size);
+            Page<AdoptionRequestResponse> adoptionRequests = adoptionRequestService.getAllAdoptionRequests(petCenter.getId(), pageable);
+            System.out.println("AdoptionRequests page: " + (adoptionRequests != null ? adoptionRequests.getTotalElements() : "null"));
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("content", adoptionRequests.getContent());
+            response.put("currentPage", adoptionRequests.getNumber());
+            response.put("totalItems", adoptionRequests.getTotalElements());
+            response.put("totalPages", adoptionRequests.getTotalPages());
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            System.err.println("Error in getAdoptionRequests: " + e.getMessage());
+            return ResponseEntity.status(500)
+                    .body(new AuthController.ErrorResponse("Error fetching adoption requests: " + e.getMessage()));
         }
-        List<AdoptionRequestResponse> requests = adoptionRequestService.getAllAdoptionRequests();
-        return ResponseEntity.ok(requests);
     }
+
+//    @GetMapping("/adoption-requests")
+//    public ResponseEntity<?> getAllAdoptionRequests(@RequestHeader("Authorization") String token) {
+//        String tokenValue = token.substring(7);
+//        if (!jwtUtil.getRoleFromToken(tokenValue).equals(Role.ADMIN)) {
+//            return ResponseEntity.status(403)
+//                    .body(new AuthController.ErrorResponse("User must have ADMIN role to view adoption requests"));
+//        }
+//        List<AdoptionRequestResponse> requests = adoptionRequestService.getAllAdoptionRequests();
+//        return ResponseEntity.ok(requests);
+//    }
+    
+
+	
 
     @PutMapping("/adoption-request/{id}/status")
     public ResponseEntity<?> updateAdoptionRequestStatus(@RequestHeader("Authorization") String token,
