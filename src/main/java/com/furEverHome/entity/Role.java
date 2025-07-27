@@ -1,7 +1,7 @@
-package com.furEverHome.entity;
-
-public enum Role {
-	USER,
-	ADMIN,
-	SUPERADMIN
-}
+	package com.furEverHome.entity;
+	
+	public enum Role {
+		USER,
+		ADMIN,
+		SUPERADMIN
+	}

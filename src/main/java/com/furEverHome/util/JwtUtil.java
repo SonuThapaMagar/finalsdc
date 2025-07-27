@@ -13,7 +13,7 @@ import io.jsonwebtoken.security.Keys;
 @Component
 public class JwtUtil {
 
-	private final String SECRET_KEY = "c3157becaa73426f6da36edea4755c826187bc3c2e6d782111a043cf5471718a";
+	public final String SECRET_KEY = "c3157becaa73426f6da36edea4755c826187bc3c2e6d782111a043cf5471718a";
 	private final long EXPIRATION_TIME = 1000 * 60 * 60;
 
 	public String generateToken(String email, Role role) {
@@ -28,10 +28,11 @@ public class JwtUtil {
 	}
 
 	public Role getRoleFromToken(String token) {
-		String role = Jwts.parser().verifyWith(Keys.hmacShaKeyFor(SECRET_KEY.getBytes())).build()
-				.parseSignedClaims(token).getPayload().get("role", String.class);
-		return Role.valueOf(role.replace("ROLE_", "")); // Remove ROLE_ prefix to match enum
-	}
+        String role = Jwts.parser().verifyWith(Keys.hmacShaKeyFor(SECRET_KEY.getBytes())).build()
+                .parseSignedClaims(token).getPayload().get("role", String.class);
+        return Role.valueOf(role.replace("ROLE_", "")); 
+    }
+	
 
 	public boolean validateToken(String token) {
         try {

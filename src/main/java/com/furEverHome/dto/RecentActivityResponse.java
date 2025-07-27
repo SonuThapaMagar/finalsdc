@@ -11,14 +11,14 @@ public class RecentActivityResponse {
     private String time;
     private LocalDateTime timestamp;
 
-    public RecentActivityResponse(String type, String icon, String bgColor, String title, String description, String time) {
+    public RecentActivityResponse(String type, String icon, String bgColor, String title, String description, String time,LocalDateTime timestamp) {
         this.type = type;
         this.icon = icon;
         this.bgColor = bgColor;
         this.title = title;
         this.description = description;
         this.time = time;
-        this.timestamp = LocalDateTime.now(); // Will be overridden in service
+        this.timestamp = timestamp; 
     }
 
     // Getters and Setters

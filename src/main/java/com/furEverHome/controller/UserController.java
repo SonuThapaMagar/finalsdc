@@ -22,15 +22,18 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.furEverHome.dto.AdoptionRequestResponse;
 import com.furEverHome.dto.AdoptionRequestSubmission;
+import com.furEverHome.dto.LostFoundReportDTO;
 import com.furEverHome.dto.PetResponse;
 import com.furEverHome.dto.UserResponse;
 import com.furEverHome.dto.UserUpdateRequest;
+import com.furEverHome.entity.LostFoundReport;
 import com.furEverHome.entity.Pet;
 import com.furEverHome.entity.Role;
 import com.furEverHome.repository.PetRepository;
 import com.furEverHome.repository.UserRepository;
 import com.furEverHome.service.AdoptionRequestService;
 import com.furEverHome.service.FileStorageService;
+import com.furEverHome.service.LostFoundReportService;
 import com.furEverHome.service.PetService;
 import com.furEverHome.service.UserService;
 import com.furEverHome.util.JwtUtil;
@@ -45,19 +48,21 @@ public class UserController {
 	private final UserService userService;
 	private final PetService petService;
 	private final UserRepository userRepository;
+	private final LostFoundReportService lostFoundReportService;
 
 	@Autowired
 	private FileStorageService fileStorageService;
 
 	@Autowired
 	public UserController(PetRepository petRepository, JwtUtil jwtUtil, AdoptionRequestService adoptionRequestService,
-			UserService userService, PetService petService, UserRepository userRepository) {
+			UserService userService, PetService petService, UserRepository userRepository,LostFoundReportService lostFoundReportService) {
 		this.petRepository = petRepository;
 		this.jwtUtil = jwtUtil;
 		this.adoptionRequestService = adoptionRequestService;
 		this.userService = userService;
 		this.petService = petService;
 		this.userRepository = userRepository;
+		this.lostFoundReportService = lostFoundReportService;
 	}
 
 	@PostMapping("/pets")
@@ -177,6 +182,74 @@ public class UserController {
 					.body(new AuthController.ErrorResponse("Failed to fetch adoption history: " + e.getMessage()));
 		}
 	}
+	
+	@PostMapping("/lost-found")
+	public ResponseEntity<?> submitLostFoundReport(
+	        @RequestHeader("Authorization") String token,
+	        @RequestParam("image") MultipartFile image,
+	        @RequestParam("location") String location,
+	        @RequestParam("description") String description,
+	        @RequestParam("petCenterId") UUID petCenterId) {
+
+	    String tokenValue = token.substring(7); // Remove "Bearer " prefix
+	    if (!jwtUtil.getRoleFromToken(tokenValue).equals(Role.USER)) {
+	        return ResponseEntity.status(403)
+	                .body(new AuthController.ErrorResponse("User must have USER role to submit a lost/found report"));
+	    }
+
+	    try {
+	        LostFoundReportDTO reportDTO = new LostFoundReportDTO(image, location, description, petCenterId);
+	        LostFoundReport report = lostFoundReportService.submitLostFoundReport(tokenValue, reportDTO);
+	        return ResponseEntity.status(201)
+	                .body(new SuccessResponse("Lost/Found report submitted successfully", mapToResponse(report)));
+	    } catch (IOException e) {
+	        return ResponseEntity.status(500)
+	                .body(new AuthController.ErrorResponse("Failed to upload image: " + e.getMessage()));
+	    } catch (IllegalArgumentException | IllegalStateException e) {
+	        return ResponseEntity.badRequest().body(new AuthController.ErrorResponse(e.getMessage()));
+	    } catch (Exception e) {
+	        return ResponseEntity.status(500)
+	                .body(new AuthController.ErrorResponse("Failed to submit report: " + e.getMessage()));
+	    }
+	}
+
+	private LostFoundReportResponse mapToResponse(LostFoundReport report) {
+	    return new LostFoundReportResponse(
+	        report.getId(),
+	        report.getImageUrl(),
+	        report.getLocation(),
+	        report.getDescription(),
+	        report.getPetCenterId(),
+	        report.getUser() != null ? report.getUser().getId() : null
+	    );
+	}
+
+	static class LostFoundReportResponse {
+	    private UUID id;
+	    private String imageUrl;
+	    private String location;
+	    private String description;
+	    private UUID petCenterId;
+	    private UUID userId;
+
+	    public LostFoundReportResponse(UUID id, String imageUrl, String location, String description, 
+	            UUID petCenterId, UUID userId) {
+	        this.id = id;
+	        this.imageUrl = imageUrl;
+	        this.location = location;
+	        this.description = description;
+	        this.petCenterId = petCenterId;
+	        this.userId = userId;
+	    }
+
+	    // Getters
+	    public UUID getId() { return id; }
+	    public String getImageUrl() { return imageUrl; }
+	    public String getLocation() { return location; }
+	    public String getDescription() { return description; }
+	    public UUID getPetCenterId() { return petCenterId; }
+	    public UUID getUserId() { return userId; }
+	}
 
 	@GetMapping("/profile")
 	@PreAuthorize("hasRole('USER')")
@@ -198,7 +271,7 @@ public class UserController {
 					.body(new AuthController.ErrorResponse("Failed to fetch profile: " + e.getMessage()));
 		}
 	}
-
+	
 	@PutMapping("/profile")
 	public ResponseEntity<?> updateProfile(@RequestHeader("Authorization") String token,
 			@RequestBody UserUpdateRequest updateRequest) {

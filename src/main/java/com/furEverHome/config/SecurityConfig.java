@@ -24,8 +24,10 @@ public class SecurityConfig {
 					.requestMatchers("/api/auth/**", "/api/admin/auth/**", "/api/superadmin/auth/**", "/api/test",
 							"/api/user/pets", "/api/user/pets/{id}")
 					.permitAll() // Added /api/user/pets/{id}
-					.requestMatchers("/api/user/**").hasRole("USER").requestMatchers("/api/admin/**").hasRole("ADMIN")
-					.requestMatchers("/api/superadmin/**").hasRole("SUPERADMIN").anyRequest().authenticated();
+					.requestMatchers("/api/user/**").hasRole("USER")
+					.requestMatchers("/api/admin/**").hasRole("ADMIN")
+					.requestMatchers("/api/superadmin/**").hasRole("SUPERADMIN")
+					.anyRequest().authenticated();
 		}).addFilterBefore(new JwtAuthenticationFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class)
 				.formLogin(form -> form.disable()).httpBasic(httpBasic -> httpBasic.disable());
 		return http.build();
