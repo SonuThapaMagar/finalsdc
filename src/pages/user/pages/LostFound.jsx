@@ -1,17 +1,5 @@
+// LostFound.jsx
 import React, { useState } from 'react';
-
-// Mock pet centers data
-const petCenters = [
-  { id: 1, name: 'Happy Paws Shelter', location: 'Downtown' },
-  { id: 2, name: 'Safe Haven Center', location: 'Uptown' },
-  { id: 3, name: 'Furry Friends Rescue', location: 'Midtown' },
-  { id: 4, name: 'Paws & Claws', location: 'Eastside' },
-];
-
-function getNearestCenter(userLocation) {
-  // Mock: just return the first center for now
-  return petCenters[0];
-}
 
 const LostFound = () => {
   const [form, setForm] = useState({
@@ -22,6 +10,7 @@ const LostFound = () => {
   });
   const [preview, setPreview] = useState(null);
   const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState(null);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -39,13 +28,52 @@ const LostFound = () => {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setSubmitted(true);
-    // Here you would send the form data to your backend
-  };
+    const token = localStorage.getItem('jwtToken');
+    console.log('Token:', token);
+    if (!token) {
+      setError('Please log in to submit a report.');
+      return;
+    }
 
-  const nearestCenter = form.location ? getNearestCenter(form.location) : null;
+    const formData = new FormData();
+    formData.append('image', form.image);
+    formData.append('location', form.location);
+    formData.append('description', form.description);
+    formData.append('petCenterId', form.petCenterId); // Ensure this is a valid UUID
+
+    try {
+      const response = await fetch('http://localhost:8080/api/user/lost-found', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      let responseData = {};
+      const contentType = response.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        responseData = await response.json();
+      } else {
+        responseData = { message: await response.text() || 'Unknown error' };
+      }
+      console.log('Response:', responseData);
+
+      if (response.ok) {
+        setSubmitted(true);
+        setError(null);
+        setForm({ image: null, location: '', description: '', petCenterId: '' });
+        setPreview(null);
+      } else {
+        setError(responseData.message || 'Failed to submit report.');
+      }
+    } catch (err) {
+      console.error('Error:', err);
+      setError('An error occurred. Please try again.');
+    }
+  };
 
   return (
     <div className="lost-found-page" style={{ minHeight: '60vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', paddingTop: 32, background: '#f8fafc' }}>
@@ -67,7 +95,10 @@ const LostFound = () => {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           <label style={{ fontWeight: 500, color: '#4b5563', marginBottom: 4 }}>Select Pet Center to Notify</label>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-            {petCenters.map(center => (
+            {[{ id: 1, name: 'Happy Paws Shelter', location: 'Downtown' },
+              { id: 2, name: 'Safe Haven Center', location: 'Uptown' },
+              { id: 3, name: 'Furry Friends Rescue', location: 'Midtown' },
+              { id: 4, name: 'Paws & Claws', location: 'Eastside' }].map(center => (
               <label key={center.id} style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#f3f4f6', borderRadius: 8, padding: '8px 12px', border: form.petCenterId === String(center.id) ? '2px solid #8b5cf6' : '1px solid #e5e7eb', cursor: 'pointer' }}>
                 <input
                   type="radio"
@@ -79,16 +110,17 @@ const LostFound = () => {
                   required
                 />
                 <span style={{ fontWeight: 500 }}>{center.name}</span>
-                <span style={{ color: '#6b7280', fontSize: 14, marginLeft: 4 }}>({center.location}{nearestCenter && nearestCenter.id === center.id ? ' - Nearest' : ''})</span>
+                <span style={{ color: '#6b7280', fontSize: 14, marginLeft: 4 }}>({center.location})</span>
               </label>
             ))}
           </div>
         </div>
         <button type="submit" style={{ background: 'linear-gradient(90deg, #8b5cf6, #3b82f6)', color: '#fff', border: 'none', borderRadius: 8, padding: '12px 0', fontWeight: 600, fontSize: 16, marginTop: 8, boxShadow: '0 2px 8px #e0e7ff', letterSpacing: 1 }}>Post Found Dog</button>
+        {error && <div style={{ color: '#ef4444', marginTop: 8, textAlign: 'center', fontWeight: 500 }}>{error}</div>}
         {submitted && <div style={{ color: '#10b981', marginTop: 8, textAlign: 'center', fontWeight: 500 }}>Thank you for reporting! We'll notify the selected pet center.</div>}
       </form>
-  </div>
-);
+    </div>
+  );
 };
 
-export default LostFound; 
+export default LostFound;

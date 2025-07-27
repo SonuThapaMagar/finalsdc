@@ -2,6 +2,7 @@ import React, { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { ArrowLeft, Heart, Home, CheckCircle, Clock, FileText, Search, Menu, X, Shield, Users } from "lucide-react"
 import "../../../styles/landing.css"
+import LandingFooter from "../components/Footer/LandingFooter"
 // import logo from "../images/logo.png"
 // import group from "../images/group.png"
 
@@ -324,6 +325,7 @@ export default function LearnMore() {
           </div>
         </div>
       </section>
+      <LandingFooter/>
     </div>
   )
 }

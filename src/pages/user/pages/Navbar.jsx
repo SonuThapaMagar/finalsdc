@@ -170,7 +170,7 @@ export default function Navbar({
     { name: "Dashboard", href: "/user/dashboard" },
     { name: "Pet Listing", href: "/user/petList" },
     { name: "My Adoptions", href: "/user/myadoptions" },
-    { name: "Lost & Found", href: "/user/lost-found" },
+    { name: "Contact", href: "/contact" },
   ];
 
   // Navigation links for guests

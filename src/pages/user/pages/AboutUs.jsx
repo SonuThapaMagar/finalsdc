@@ -1,24 +1,38 @@
-import React, { useState, useEffect } from "react"
-import { useNavigate } from "react-router-dom"
-import { ArrowLeft, Heart, Shield, Users, Award, Target, Eye, Phone, Mail, MapPin, Menu, X } from "lucide-react"
-import group from "../../../images/group.png"
-import "../../../styles/landing.css"
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  ArrowLeft,
+  Heart,
+  Shield,
+  Users,
+  Award,
+  Target,
+  Eye,
+  Phone,
+  Mail,
+  MapPin,
+  Menu,
+  X,
+} from "lucide-react";
+import group from "../../../images/group.png";
+import "../../../styles/landing.css";
+import LandingFooter from "../components/Footer/LandingFooter";
 
 export default function AboutUs() {
-  const navigate = useNavigate()
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const navigate = useNavigate();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Scroll to top when component mounts
   useEffect(() => {
-    window.scrollTo(0, 0)
-  }, [])
+    window.scrollTo(0, 0);
+  }, []);
 
   const stats = [
     { number: "10,000+", label: "Successful Adoptions", icon: Heart },
     { number: "500+", label: "Partner Shelters", icon: Shield },
     { number: "50,000+", label: "Happy Families", icon: Users },
     { number: "5", label: "Years of Service", icon: Award },
-  ]
+  ];
 
   const team = [
     {
@@ -45,30 +59,34 @@ export default function AboutUs() {
       bio: "Building innovative solutions to streamline the pet adoption process.",
       image: "/placeholder.svg?height=300&width=300",
     },
-  ]
+  ];
 
   const values = [
     {
       icon: Heart,
       title: "Compassion First",
-      description: "Every decision we make is guided by our love for animals and commitment to their welfare.",
+      description:
+        "Every decision we make is guided by our love for animals and commitment to their welfare.",
     },
     {
       icon: Shield,
       title: "Trust & Transparency",
-      description: "We maintain the highest standards of honesty and openness in all our operations.",
+      description:
+        "We maintain the highest standards of honesty and openness in all our operations.",
     },
     {
       icon: Users,
       title: "Community Focus",
-      description: "Building strong relationships between pets, families, and local communities.",
+      description:
+        "Building strong relationships between pets, families, and local communities.",
     },
     {
       icon: Target,
       title: "Excellence",
-      description: "Continuously improving our services to provide the best adoption experience.",
+      description:
+        "Continuously improving our services to provide the best adoption experience.",
     },
-  ]
+  ];
 
   return (
     <>
@@ -104,14 +122,20 @@ export default function AboutUs() {
                   <span className="hero-gradient-text"> FurEverHome</span>
                 </h1>
                 <p className="hero-subtitle">
-                  We're on a mission to connect every pet with a loving family. Since 2019, we've been building bridges
-                  between animals in need and the families who will love them forever.
+                  We're on a mission to connect every pet with a loving family.
+                  Since 2019, we've been building bridges between animals in
+                  need and the families who will love them forever.
                 </p>
               </div>
 
               <div className="hero-image-container">
                 <div className="hero-image">
-                  <img src={group || "/group.png"} alt="Our team" width="600" height="500" />
+                  <img
+                    src={group || "/group.png"}
+                    alt="Our team"
+                    width="600"
+                    height="500"
+                  />
                   <div className="hero-overlay" />
                 </div>
               </div>
@@ -124,10 +148,19 @@ export default function AboutUs() {
           <div className="categories-container">
             <div className="section-header">
               <h2 className="section-title">Our Impact</h2>
-              <p className="section-subtitle">Numbers that tell our story of connecting pets with loving families</p>
+              <p className="section-subtitle">
+                Numbers that tell our story of connecting pets with loving
+                families
+              </p>
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: "2rem" }}>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
+                gap: "2rem",
+              }}
+            >
               {stats.map((stat, index) => (
                 <div
                   key={index}
@@ -154,10 +187,19 @@ export default function AboutUs() {
                   >
                     <stat.icon size={24} />
                   </div>
-                  <div style={{ fontSize: "2.5rem", fontWeight: "700", color: "#111827", marginBottom: "0.5rem" }}>
+                  <div
+                    style={{
+                      fontSize: "2.5rem",
+                      fontWeight: "700",
+                      color: "#111827",
+                      marginBottom: "0.5rem",
+                    }}
+                  >
                     {stat.number}
                   </div>
-                  <div style={{ color: "#6b7280", fontWeight: "500" }}>{stat.label}</div>
+                  <div style={{ color: "#6b7280", fontWeight: "500" }}>
+                    {stat.label}
+                  </div>
                 </div>
               ))}
             </div>
@@ -167,7 +209,13 @@ export default function AboutUs() {
         {/* Mission & Vision */}
         <section className="features">
           <div className="features-container">
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(400px, 1fr))", gap: "3rem" }}>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(400px, 1fr))",
+                gap: "3rem",
+              }}
+            >
               <div style={{ textAlign: "center" }}>
                 <div
                   style={{
@@ -184,10 +232,20 @@ export default function AboutUs() {
                 >
                   <Target size={32} />
                 </div>
-                <h3 style={{ fontSize: "1.5rem", fontWeight: "600", marginBottom: "1rem" }}>Our Mission</h3>
+                <h3
+                  style={{
+                    fontSize: "1.5rem",
+                    fontWeight: "600",
+                    marginBottom: "1rem",
+                  }}
+                >
+                  Our Mission
+                </h3>
                 <p style={{ color: "#6b7280", lineHeight: 1.6 }}>
-                  To revolutionize pet adoption by creating a seamless, transparent, and compassionate platform that
-                  connects rescue animals with loving families, ensuring every pet finds their forever home.
+                  To revolutionize pet adoption by creating a seamless,
+                  transparent, and compassionate platform that connects rescue
+                  animals with loving families, ensuring every pet finds their
+                  forever home.
                 </p>
               </div>
 
@@ -207,10 +265,19 @@ export default function AboutUs() {
                 >
                   <Eye size={32} />
                 </div>
-                <h3 style={{ fontSize: "1.5rem", fontWeight: "600", marginBottom: "1rem" }}>Our Vision</h3>
+                <h3
+                  style={{
+                    fontSize: "1.5rem",
+                    fontWeight: "600",
+                    marginBottom: "1rem",
+                  }}
+                >
+                  Our Vision
+                </h3>
                 <p style={{ color: "#6b7280", lineHeight: 1.6 }}>
-                  A world where no healthy, loving animal is euthanized due to lack of a home. We envision communities
-                  where pet adoption is the first choice for families seeking animal companionship.
+                  A world where no healthy, loving animal is euthanized due to
+                  lack of a home. We envision communities where pet adoption is
+                  the first choice for families seeking animal companionship.
                 </p>
               </div>
             </div>
@@ -222,10 +289,18 @@ export default function AboutUs() {
           <div className="about-container">
             <div className="section-header">
               <h2 className="section-title">Our Values</h2>
-              <p className="section-subtitle">The principles that guide everything we do</p>
+              <p className="section-subtitle">
+                The principles that guide everything we do
+              </p>
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: "2rem" }}>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
+                gap: "2rem",
+              }}
+            >
               {values.map((value, index) => (
                 <div
                   key={index}
@@ -252,8 +327,18 @@ export default function AboutUs() {
                   >
                     <value.icon size={20} />
                   </div>
-                  <h3 style={{ fontSize: "1.25rem", fontWeight: "600", marginBottom: "1rem" }}>{value.title}</h3>
-                  <p style={{ color: "#6b7280", lineHeight: 1.6 }}>{value.description}</p>
+                  <h3
+                    style={{
+                      fontSize: "1.25rem",
+                      fontWeight: "600",
+                      marginBottom: "1rem",
+                    }}
+                  >
+                    {value.title}
+                  </h3>
+                  <p style={{ color: "#6b7280", lineHeight: 1.6 }}>
+                    {value.description}
+                  </p>
                 </div>
               ))}
             </div>
@@ -345,7 +430,9 @@ export default function AboutUs() {
                   <Phone size={20} />
                 </div>
                 <div>
-                  <div style={{ fontWeight: "600", marginBottom: "0.25rem" }}>Phone</div>
+                  <div style={{ fontWeight: "600", marginBottom: "0.25rem" }}>
+                    Phone
+                  </div>
                   <div style={{ color: "#6b7280" }}>+977-9785854460</div>
                 </div>
               </div>
@@ -376,7 +463,9 @@ export default function AboutUs() {
                   <Mail size={20} />
                 </div>
                 <div>
-                  <div style={{ fontWeight: "600", marginBottom: "0.25rem" }}>Email</div>
+                  <div style={{ fontWeight: "600", marginBottom: "0.25rem" }}>
+                    Email
+                  </div>
                   <div style={{ color: "#6b7280" }}>fureverhome@gmail.com</div>
                 </div>
               </div>
@@ -407,7 +496,9 @@ export default function AboutUs() {
                   <MapPin size={20} />
                 </div>
                 <div>
-                  <div style={{ fontWeight: "600", marginBottom: "0.25rem" }}>Location</div>
+                  <div style={{ fontWeight: "600", marginBottom: "0.25rem" }}>
+                    Location
+                  </div>
                   <div style={{ color: "#6b7280" }}>Kathmandu, Nepal</div>
                 </div>
               </div>
@@ -419,19 +510,29 @@ export default function AboutUs() {
         <section className="cta">
           <div className="cta-container">
             <h2>Join Our Mission</h2>
-            <p>Help us create more happy endings. Start your adoption journey or become a partner shelter today!</p>
+            <p>
+              Help us create more happy endings. Start your adoption journey or
+              become a partner shelter today!
+            </p>
 
             <div className="cta-buttons">
-              <button className="cta-btn-primary" onClick={() => navigate("/category")}>
+              <button
+                className="cta-btn-primary"
+                onClick={() => navigate("/category")}
+              >
                 Browse Available Pets
               </button>
-              <button className="cta-btn-secondary" onClick={() => navigate("/register-shelter")}>
+              <button
+                className="cta-btn-secondary"
+                onClick={() => navigate("/register-shelter")}
+              >
                 Become a Partner
               </button>
             </div>
           </div>
         </section>
+        <LandingFooter />
       </div>
     </>
-  )
+  );
 }
