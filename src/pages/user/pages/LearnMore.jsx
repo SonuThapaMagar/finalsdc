@@ -6,7 +6,7 @@ import LandingFooter from "../components/Footer/LandingFooter"
 // import logo from "../images/logo.png"
 // import group from "../images/group.png"
 
-export default function LearnMore() {
+export default function LearnMore({ isUserLoggedIn }) {
   const navigate = useNavigate()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
@@ -99,13 +99,18 @@ export default function LearnMore() {
     },
   ]
 
+  // Use user-specific URLs if logged in
+  const browseUrl = isUserLoggedIn ? "/user/petList" : "/category"
+  const backUrl = isUserLoggedIn ? "/user/dashboard" : "/"
+
+
   return (
     <div className="landing-page">
       {/* Header Section */}
       <section className="hero" style={{ padding: "3rem 0" }}>
         <div className="hero-container">
           <button
-            onClick={() => navigate("/")}
+            onClick={() => navigate(backUrl)}
             style={{
               display: "flex",
               alignItems: "center",
@@ -316,10 +321,10 @@ export default function LearnMore() {
           <p>Browse our available pets and find your perfect companion today!</p>
 
           <div className="cta-buttons">
-            <button className="cta-btn-primary" onClick={() => navigate("/category")}>
+            <button className="cta-btn-primary" onClick={() => navigate(browseUrl)}>
               Browse Available Pets
             </button>
-            <button className="cta-btn-secondary" onClick={() => navigate("/")}>
+            <button className="cta-btn-secondary" onClick={() => navigate(backUrl)}>
               Back to Home
             </button>
           </div>

@@ -3,7 +3,7 @@ import { ArrowRight } from 'lucide-react';
 import dc from '../../../../images/dc.png';
 import { Heart } from 'lucide-react';
 
-const HeroSection = ({ onNavigateToCategories, navigate }) => (
+const HeroSection = ({ onNavigateToCategories, navigate, browseUrl, learnMoreUrl }) => (
   <section className="hero">
     <div className="hero-container">
       <div className="hero-grid">
@@ -11,10 +11,18 @@ const HeroSection = ({ onNavigateToCategories, navigate }) => (
           <h1 className="hero-title">Find Your <span className="hero-gradient-text">Perfect Companion</span></h1>
           <p className="hero-subtitle">Connect with loving pets from verified shelters and rescues. Every adoption saves a life and creates a forever bond.</p>
           <div className="hero-buttons">
-            <button className="hero-btn-primary" onClick={onNavigateToCategories}>
+            <button
+              className="hero-btn-primary"
+              onClick={() => navigate(browseUrl)}
+            >
               Browse Pets <ArrowRight size={20} />
             </button>
-            <button className="hero-btn-secondary" onClick={() => navigate('/learn-more')}>Learn More</button>
+            <button
+              className="hero-btn-secondary"
+              onClick={() => navigate(learnMoreUrl)}
+            >
+              Learn More
+            </button>
           </div>
         </div>
         <div className="hero-image-container slide-right">
@@ -37,4 +45,4 @@ const HeroSection = ({ onNavigateToCategories, navigate }) => (
   </section>
 );
 
-export default HeroSection; 
+export default HeroSection;

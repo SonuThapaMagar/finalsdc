@@ -1,28 +1,46 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../pages/auth-provider'; // <-- Import useAuth
 import { Phone, Mail, MapPin, Facebook, Twitter, Instagram } from 'lucide-react';
 import '../../../../styles/landing.css';
 import logo from '../../../../images/logo.png';
 
 const LandingFooter = () => {
   const navigate = useNavigate();
+  const { isAuthenticated, user } = useAuth(); // <-- Get auth state
+
+  // Use user-specific URLs if logged in as USER
+  const isUser = isAuthenticated && user?.role === 'USER';
+
+  const quickLinks = isUser
+    ? [
+        { name: 'About Us', path: '/user/about-us' },
+        { name: 'Pet Listings', path: '/user/petList' },
+        { name: 'Adoption Process', path: '/user/learn-more' },
+        { name: 'Contact', path: '/user/contact' }
+      ]
+    : [
+        { name: 'About Us', path: '/about-us' },
+        { name: 'Pet Listings', path: '/category' },
+        { name: 'Adoption Process', path: '/learn-more' },
+        { name: 'Contact', path: '/contact' }
+      ];
+
+  const services = isUser
+    ? [
+        { name: 'Pet Adoption', path: '/user/petList' },
+        { name: 'Pet Care Tips', path: '/user/learn-more' },
+        { name: 'Support', path: '/user/contact' }
+      ]
+    : [
+        { name: 'Pet Adoption', path: '/category' },
+        { name: 'Pet Care Tips', path: '/learn-more' },
+        { name: 'Support', path: '/contact' }
+      ];
 
   const handleNavigation = (path) => {
     navigate(path);
   };
-
-  const quickLinks = [
-    { name: 'About Us', path: '/about-us' },
-    { name: 'Pet Listings', path: '/category' },
-    { name: 'Adoption Process', path: '/learn-more' },
-    { name: 'Contact', path: '/contact' }
-  ];
-
-  const services = [
-    { name: 'Pet Adoption', path: '/category' },
-    { name: 'Pet Care Tips', path: '/learn-more' },
-    { name: 'Support', path: '/contact' }
-  ];
 
   return (
     <footer className="footer">
@@ -114,4 +132,4 @@ const LandingFooter = () => {
   );
 };
 
-export default LandingFooter; 
+export default LandingFooter;

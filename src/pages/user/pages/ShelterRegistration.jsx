@@ -12,7 +12,6 @@ import {
   Check,
   Heart,
 } from "lucide-react";
-import Navbar from "./Navbar";
 import "../../../styles/landing.css";
 import { toast } from "react-toastify";
 import api from "../../../api/api";
@@ -369,7 +368,6 @@ export default function ShelterRegistration() {
 
   return (
     <div className="landing-page">
-      <Navbar />
       <section className="hero" style={{ padding: "3rem 0 2rem" }}>
         <div className="hero-container">
           <button

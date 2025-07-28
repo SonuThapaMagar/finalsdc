@@ -61,7 +61,11 @@ function LandingPage() {
 
   return (
     <div className="landing-page">
-      <HeroSection onNavigateToCategories={onNavigateToCategories} navigate={navigate} />
+      <HeroSection
+        navigate={navigate}
+        browseUrl="/category"
+        learnMoreUrl="/learn-more"
+      />
       <CategoriesSection pets={pets} />
       <FeaturedPetsSection
         pets={pets}
@@ -69,6 +73,7 @@ function LandingPage() {
         isFavorite={isFavorite}
         toggleFavorite={toggleFavorite}
         onNavigateToCategories={onNavigateToCategories}
+        viewAllPetsUrl="/category" // Pass the guest URL
         navigate={navigate}
       />
       <AboutSection navigate={navigate} />

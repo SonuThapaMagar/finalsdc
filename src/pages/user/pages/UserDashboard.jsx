@@ -88,12 +88,13 @@ const UserDashboard = () => {
 
   // For dashboard, you may want to customize the hero section text
   const heroProps = {
-    onNavigateToCategories: () => navigate('/user/pets'),
     navigate,
+    browseUrl: '/user/petList',
+    learnMoreUrl: '/user/learn-more', // Use a user-specific route
     title: 'Welcome to Your ',
     highlight: 'Dashboard',
     subtitle: 'Find your perfect companion and manage your adoption journey',
-    showSearch: false // Optionally hide search bar in hero
+    showSearch: false
   };
 
   return (
@@ -105,7 +106,8 @@ const UserDashboard = () => {
         isLoading={loading}
         isFavorite={isFavorite}
         toggleFavorite={toggleFavorite}
-        onNavigateToCategories={() => navigate('/user/pets')}
+        onNavigateToCategories={() => navigate('/user/petList')}
+        viewAllPetsUrl="/user/petList" // Pass the logged-in URL
         navigate={navigate}
       />
       <LandingFooter />
@@ -113,4 +115,4 @@ const UserDashboard = () => {
   );
 };
 
-export default UserDashboard; 
+export default UserDashboard;

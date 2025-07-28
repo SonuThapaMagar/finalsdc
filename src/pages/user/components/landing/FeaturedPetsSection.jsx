@@ -1,7 +1,15 @@
 import React from 'react';
 import { Heart } from 'lucide-react';
 
-const FeaturedPetsSection = ({ pets, isLoading, isFavorite, toggleFavorite, onNavigateToCategories, navigate }) => (
+const FeaturedPetsSection = ({
+  pets,
+  isLoading,
+  isFavorite,
+  toggleFavorite,
+  onNavigateToCategories,
+  viewAllPetsUrl,
+  navigate
+}) => (
   <section className="featured-pets" style={{ background: 'white', padding: '4rem 0' }}>
     <div className="featured-pets-container">
       <div className="section-header slide-up">
@@ -46,8 +54,19 @@ const FeaturedPetsSection = ({ pets, isLoading, isFavorite, toggleFavorite, onNa
         </div>
       )}
       <button
-        onClick={onNavigateToCategories}
-        style={{ backgroundColor: 'white', color: '#8b5cf6', border: '2px solid #8b5cf6', padding: '0.75rem 2rem', borderRadius: '9999px', fontWeight: '600', margin: '3rem auto 0', display: 'block', cursor: 'pointer', transition: 'all 0.2s' }}
+        onClick={() => navigate(viewAllPetsUrl)}
+        style={{
+          backgroundColor: 'white',
+          color: '#8b5cf6',
+          border: '2px solid #8b5cf6',
+          padding: '0.75rem 2rem',
+          borderRadius: '9999px',
+          fontWeight: '600',
+          margin: '3rem auto 0',
+          display: 'block',
+          cursor: 'pointer',
+          transition: 'all 0.2s'
+        }}
         onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#f3f4f6'; e.currentTarget.style.transform = 'scale(1.05)'; }}
         onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'white'; e.currentTarget.style.transform = 'scale(1)'; }}
       >
@@ -57,4 +76,4 @@ const FeaturedPetsSection = ({ pets, isLoading, isFavorite, toggleFavorite, onNa
   </section>
 );
 
-export default FeaturedPetsSection; 
+export default FeaturedPetsSection;

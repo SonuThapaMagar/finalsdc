@@ -204,6 +204,7 @@ export default function AppRoutes() {
         <Route path="profile" element={<Profile />} />
         <Route path="petList" element={<Category />} />
         <Route path="change-password" element={<ChangePassword />} />
+        <Route path="learn-more" element={<LearnMore isUserLoggedIn={false} />} />
       </Route>
 
       {/* Protected Admin routes */}
