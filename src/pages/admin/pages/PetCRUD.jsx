@@ -3,6 +3,7 @@ import api from '../../../api/api';
 import { toast } from 'react-toastify';
 import { RiEdit2Line, RiDeleteBin6Line, RiAddLine, RiCloseLine, RiSaveLine, RiImageAddLine } from 'react-icons/ri';
 import { useNavigate } from 'react-router-dom';
+import * as XLSX from 'xlsx';
 
 const initialPet = {
   id: '',
@@ -30,6 +31,17 @@ export default function PetCRUD() {
   const [currentPage, setCurrentPage] = useState(1);
   const petsPerPage = 5;
   const [totalPages, setTotalPages] = useState(1);
+  // Export to Excel handler
+  const handleExportTable = () => {
+    if (!pets.length) {
+      toast.error('No pet data to export');
+      return;
+    }
+    const worksheet = XLSX.utils.json_to_sheet(pets);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Pets');
+    XLSX.writeFile(workbook, 'pets_table.xlsx');
+  };
 
   useEffect(() => {
     fetchPets();
@@ -188,6 +200,14 @@ export default function PetCRUD() {
           className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
         >
           <RiAddLine className="text-lg" /> Add Pet
+        </button>
+      </div>
+      <div className="flex justify-end mb-2">
+        <button
+          onClick={handleExportTable}
+          className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+        >
+          Export to Excel
         </button>
       </div>
       <div className="bg-white rounded-lg shadow-md overflow-hidden">
