@@ -5,6 +5,7 @@ import PetCenterList from '../components/PetCenterList';
 import PetCenterDeleteDialog from '../components/PetCenterDeleteDialog';
 import { toast } from 'react-toastify';
 import api from '../../../api/api';
+import * as XLSX from 'xlsx';
 
 export default function PetCenterMgmt() {
   const navigate = useNavigate();
@@ -15,6 +16,7 @@ export default function PetCenterMgmt() {
   const [currentPage, setCurrentPage] = useState(0); // zero-based
   const [totalPages, setTotalPages] = useState(1);
   const centersPerPage = 5;
+  const [chartData, setChartData] = useState([]); // For exporting chart data
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -25,7 +27,26 @@ export default function PetCenterMgmt() {
       return;
     }
     fetchPetCenters(token, currentPage);
+    fetchChartData(token);
   }, [navigate, currentPage]);
+
+  // Fetch chart data for export
+  const fetchChartData = async (token) => {
+    try {
+      const res = await api.get('/api/superadmin/pet-centers', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const transformedData = res.data.map(center => ({
+        name: center.shelterName || 'Unnamed',
+        pets: center.petCount || 0,
+      }));
+      setChartData(transformedData);
+    } catch (error) {
+      setChartData([]);
+    }
+  };
 
   const fetchPetCenters = async (token, page = 0) => {
     try {
@@ -66,6 +87,30 @@ export default function PetCenterMgmt() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  // Export chart data to Excel
+  const handleExportChart = () => {
+    if (!chartData.length) {
+      toast.error('No chart data to export');
+      return;
+    }
+    const worksheet = XLSX.utils.json_to_sheet(chartData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'PetCenterChart');
+    XLSX.writeFile(workbook, 'pet_center_chart.xlsx');
+  };
+
+  // Export table data to Excel
+  const handleExportTable = () => {
+    if (!petCenters.length) {
+      toast.error('No table data to export');
+      return;
+    }
+    const worksheet = XLSX.utils.json_to_sheet(petCenters);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'PetCenters');
+    XLSX.writeFile(workbook, 'pet_centers_table.xlsx');
   };
 
   const handleDelete = async (petCenterId) => {
@@ -124,7 +169,24 @@ export default function PetCenterMgmt() {
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
       <h1 className="text-2xl font-bold text-gray-800 mb-8">Pet Center Management</h1>
+      <div className="flex justify-end gap-2 mb-4">
+        <button
+          onClick={handleExportChart}
+          className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+        >
+          Export Chart Data to Excel
+        </button>
+        
+      </div>
       <PetCenterBarChart />
+      <div className="flex justify-end mb-2">
+        <button
+          onClick={handleExportTable}
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+        >
+          Export Table Data to Excel
+        </button>
+      </div>
       <PetCenterList
         petCenters={petCenters}
         onEdit={handleEdit}
