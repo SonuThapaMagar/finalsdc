@@ -56,6 +56,7 @@ const AdoptionRequests = () => {
 
   const handleApprove = async (requestId) => {
     try {
+      console.log("Approving request:", requestId);
       await api.put(`/api/admin/adoption-request/${requestId}/status`, { status: "ACCEPTED" }, {
         headers: { Authorization: `Bearer ${localStorage.getItem("jwtToken")}` },
       });
@@ -64,13 +65,14 @@ const AdoptionRequests = () => {
       );
       toast.success("Adoption request approved successfully!");
     } catch (error) {
-      console.error("Approve error:", error);
+      console.error("Approve error:", error.response?.data || error.message);
       toast.error("Failed to approve adoption request. Please try again.");
     }
   };
-
+  
   const handleReject = async (requestId) => {
     try {
+      console.log("Rejecting request:", requestId);
       await api.put(`/api/admin/adoption-request/${requestId}/status`, { status: "REJECTED" }, {
         headers: { Authorization: `Bearer ${localStorage.getItem("jwtToken")}` },
       });
@@ -79,10 +81,10 @@ const AdoptionRequests = () => {
       );
       toast.success("Adoption request rejected successfully!");
     } catch (error) {
-      console.error("Reject error:", error);
+      console.error("Reject error:", error.response?.data || error.message);
       toast.error("Failed to reject adoption request. Please try again.");
     }
-  };
+  }
 
   // Delete handler
   const handleDelete = async (requestId) => {
