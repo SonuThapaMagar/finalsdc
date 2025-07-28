@@ -7,104 +7,135 @@ import com.furEverHome.entity.AdoptionRequestStatus;
 
 public class AdoptionRequestResponse {
 
-	private UUID id;
-	private UUID userId;
-	private String userEmail;
-	private UUID petId;
-	private String petName;
-	private String motivation;
-	private String livingSituation;
-	private String experience;
-	private AdoptionRequestStatus status;
-	private LocalDateTime submittedAt;
-	private LocalDateTime updatedAt;
+    private UUID id;
+    private UUID userId;
+    private String userEmail;
+    private UUID petId;
+    private String petName;
+    private String motivation;
+    private String livingSituation;
+    private String experience;
+    private AdoptionRequestStatus status;
+    private LocalDateTime submittedAt;
+    private LocalDateTime updatedAt;
+    private String petImage;
 
-	public UUID getId() {
-		return id;
-	}
+    // Add default no-args constructor
+    public AdoptionRequestResponse() {
+    }
 
-	public void setId(UUID id) {
-		this.id = id;
-	}
+    // Existing parameterized constructor
+    public AdoptionRequestResponse(UUID id, UUID userId, String userEmail, UUID petId, String petName,
+            String motivation, String livingSituation, String experience, AdoptionRequestStatus status,
+            LocalDateTime submittedAt, LocalDateTime updatedAt, String petImage) {
+        this.id = id;
+        this.userId = userId;
+        this.userEmail = userEmail;
+        this.petId = petId;
+        this.petName = petName;
+        this.motivation = motivation;
+        this.livingSituation = livingSituation;
+        this.experience = experience;
+        this.status = status;
+        this.submittedAt = submittedAt;
+        this.updatedAt = updatedAt;
+        this.petImage = petImage;
+    }
 
-	public UUID getUserId() {
-		return userId;
-	}
+    // Existing getters and setters
+    public UUID getId() {
+        return id;
+    }
 
-	public void setUserId(UUID userId) {
-		this.userId = userId;
-	}
+    public void setId(UUID id) {
+        this.id = id;
+    }
 
-	public String getUserEmail() {
-		return userEmail;
-	}
+    public UUID getUserId() {
+        return userId;
+    }
 
-	public void setUserEmail(String userEmail) {
-		this.userEmail = userEmail;
-	}
+    public void setUserId(UUID userId) {
+        this.userId = userId;
+    }
 
-	public UUID getPetId() {
-		return petId;
-	}
+    public String getUserEmail() {
+        return userEmail;
+    }
 
-	public void setPetId(UUID petId) {
-		this.petId = petId;
-	}
+    public void setUserEmail(String userEmail) {
+        this.userEmail = userEmail;
+    }
 
-	public String getPetName() {
-		return petName;
-	}
+    public UUID getPetId() {
+        return petId;
+    }
 
-	public void setPetName(String petName) {
-		this.petName = petName;
-	}
+    public void setPetId(UUID petId) {
+        this.petId = petId;
+    }
 
-	public String getMotivation() {
-		return motivation;
-	}
+    public String getPetName() {
+        return petName;
+    }
 
-	public void setMotivation(String motivation) {
-		this.motivation = motivation;
-	}
+    public void setPetName(String petName) {
+        this.petName = petName;
+    }
 
-	public String getLivingSituation() {
-		return livingSituation;
-	}
+    public String getMotivation() {
+        return motivation;
+    }
 
-	public void setLivingSituation(String livingSituation) {
-		this.livingSituation = livingSituation;
-	}
+    public void setMotivation(String motivation) {
+        this.motivation = motivation;
+    }
 
-	public String getExperience() {
-		return experience;
-	}
+    public String getLivingSituation() {
+        return livingSituation;
+    }
 
-	public void setExperience(String experience) {
-		this.experience = experience;
-	}
+    public void setLivingSituation(String livingSituation) {
+        this.livingSituation = livingSituation;
+    }
 
-	public AdoptionRequestStatus getStatus() {
-		return status;
-	}
+    public String getExperience() {
+        return experience;
+    }
 
-	public void setStatus(AdoptionRequestStatus status) {
-		this.status = status;
-	}
+    public void setExperience(String experience) {
+        this.experience = experience;
+    }
 
-	public LocalDateTime getSubmittedAt() {
-		return submittedAt;
-	}
+    public AdoptionRequestStatus getStatus() {
+        return status;
+    }
 
-	public void setSubmittedAt(LocalDateTime submittedAt) {
-		this.submittedAt = submittedAt;
-	}
+    public void setStatus(AdoptionRequestStatus status) {
+        this.status = status;
+    }
 
-	public LocalDateTime getUpdatedAt() {
-		return updatedAt;
-	}
+    public LocalDateTime getSubmittedAt() {
+        return submittedAt;
+    }
 
-	public void setUpdatedAt(LocalDateTime updatedAt) {
-		this.updatedAt = updatedAt;
-	}
+    public void setSubmittedAt(LocalDateTime submittedAt) {
+        this.submittedAt = submittedAt;
+    }
 
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    public String getPetImage() {
+        return petImage;
+    }
+
+    public void setPetImage(String petImage) {
+        this.petImage = petImage;
+    }
 }

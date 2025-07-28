@@ -2,6 +2,7 @@ package com.furEverHome.controller;
 
 import com.furEverHome.dto.PetRequest;
 import com.furEverHome.dto.PetResponse;
+import com.furEverHome.entity.AdoptionRequest;
 import com.furEverHome.entity.AdoptionRequestStatus;
 import com.furEverHome.entity.Pet;
 import com.furEverHome.entity.PetCenter;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -78,6 +80,47 @@ public class PetCenterController {
 		} catch (Exception e) {
 			return ResponseEntity.status(500).body("Error fetching dashboard stats: " + e.getMessage());
 		}
+	}
+	
+	@GetMapping("/dashboard/monthly-adoptions")
+	public ResponseEntity<?> getMonthlyAdoptions(@RequestHeader("Authorization") String authHeader) {
+	    try {
+	        String token = authHeader.replace("Bearer ", "");
+	        if (!jwtUtil.validateToken(token)) {
+	            return ResponseEntity.status(401).body(new AuthController.ErrorResponse("Invalid token"));
+	        }
+	        Role role = jwtUtil.getRoleFromToken(token);
+	        if (!Role.ADMIN.equals(role)) {
+	            return ResponseEntity.status(403).body(new AuthController.ErrorResponse("Access denied: ADMIN role required"));
+	        }
+
+	        String email = jwtUtil.getEmailFromToken(token);
+	        PetCenter petCenter = petCenterRepository.findByEmail(email)
+	                .orElseThrow(() -> new IllegalArgumentException("Pet Center not found for email: " + email));
+
+	        List<AdoptionRequest> requests = adoptionRequestRepository.findByPetCenterIdAndStatus(
+	            petCenter.getId(), AdoptionRequestStatus.ACCEPTED
+	        );
+	        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM");
+	        Map<String, Long> monthlyAdoptions = requests.stream()
+	            .collect(Collectors.groupingBy(
+	                request -> request.getSubmittedAt().format(formatter),
+	                Collectors.counting()
+	            ));
+
+	        List<Map<String, Object>> barData = monthlyAdoptions.entrySet().stream()
+	            .map(entry -> {
+	                Map<String, Object> data = new HashMap<>();
+	                data.put("month", entry.getKey());
+	                data.put("adoptions", entry.getValue());
+	                return data;
+	            })
+	            .collect(Collectors.toList());
+
+	        return ResponseEntity.ok(barData);
+	    } catch (Exception e) {
+	        return ResponseEntity.status(500).body(new AuthController.ErrorResponse("Error fetching monthly adoptions: " + e.getMessage()));
+	    }
 	}
 
 	@PostMapping("/pets")

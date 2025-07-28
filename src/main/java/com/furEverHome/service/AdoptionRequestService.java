@@ -77,12 +77,38 @@ public class AdoptionRequestService {
 		return adoptionRequestRepository.findAll(pageable).map(this::mapToResponseDTO);
 	}
 
+//	public List<AdoptionRequestResponse> getAdoptionRequestsByUserEmail(String email) {
+//		User user = userRepository.findByEmail(email)
+//				.orElseThrow(() -> new IllegalArgumentException("User not found with email: " + email));
+//		return adoptionRequestRepository.findByUserId(user.getId()).stream().map(this::mapToResponseDTO)
+//				.collect(Collectors.toList());
+//	}
+	
 	public List<AdoptionRequestResponse> getAdoptionRequestsByUserEmail(String email) {
-		User user = userRepository.findByEmail(email)
-				.orElseThrow(() -> new IllegalArgumentException("User not found with email: " + email));
-		return adoptionRequestRepository.findByUserId(user.getId()).stream().map(this::mapToResponseDTO)
-				.collect(Collectors.toList());
-	}
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("User not found with email: " + email));
+        List<AdoptionRequest> requests = adoptionRequestRepository.findByUserId(user.getId());
+        return requests.stream().map(request -> {
+            // Safely get userId and petId from the related entities
+            UUID userId = request.getUser() != null ? request.getUser().getId() : null;
+            Pet pet = petRepository.findById(request.getPet().getId())
+                    .orElseThrow(() -> new IllegalArgumentException("Pet not found for request: " + request.getId()));
+            return new AdoptionRequestResponse(
+                    request.getId(),
+                    userId,
+                    request.getUser().getEmail(),
+                    pet.getId(), // Use pet.getId() instead of getPetId()
+                    pet.getName(),
+                    request.getMotivation(),
+                    request.getLivingSituation(),
+                    request.getExperience(),
+                    request.getStatus(),
+                    request.getSubmittedAt(),
+                    request.getUpdatedAt(),
+                    pet.getImageUrl() 
+                    );
+        }).collect(Collectors.toList());
+    }
 
 	@Transactional
 	public AdoptionRequestResponse updateAdoptionRequestStatus(UUID requestId, AdoptionRequestStatusUpdate updateDTO) {
