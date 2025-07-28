@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import api from "../../../api/api";
 import { toast } from "react-toastify";
 import { RiCheckLine, RiCloseLine, RiEyeLine, RiDeleteBin6Line } from "react-icons/ri"; // Add delete icon
+import * as XLSX from 'xlsx';
 
 const AdoptionRequests = () => {
   const navigate = useNavigate();
@@ -125,6 +126,18 @@ const AdoptionRequests = () => {
     }
   };
 
+  // Export to Excel handler
+  const handleExportTable = () => {
+    if (!adoptionRequests.length) {
+      toast.error('No adoption request data to export');
+      return;
+    }
+    const worksheet = XLSX.utils.json_to_sheet(adoptionRequests);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'AdoptionRequests');
+    XLSX.writeFile(workbook, 'adoption_requests_table.xlsx');
+  };
+
   if (loading) {
     return (
       <div className="p-6 bg-gray-100 min-h-screen flex items-center justify-center">
@@ -138,6 +151,14 @@ const AdoptionRequests = () => {
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-800">Adoption Requests</h1>
         <p className="text-gray-600 mt-2">Manage and review pet adoption requests</p>
+      </div>
+      <div className="flex justify-end mb-2">
+        <button
+          onClick={handleExportTable}
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+        >
+          Export to Excel
+        </button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
