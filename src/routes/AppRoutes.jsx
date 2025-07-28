@@ -34,6 +34,7 @@ import UserDashboard from "../pages/user/pages/UserDashboard";
 import ChangePassword from "../pages/user/pages/ChangePassword";
 import LostFound from "../pages/user/pages/LostFound";
 import MyAdoptions from "../pages/user/pages/MyAdoptions";
+import ForgotPassword from "../pages/user/pages/ForgotPassword";
 
 // Route Guard Components (unchanged)
 const ProtectedRoute = ({ children, requiredRole }) => {
@@ -147,6 +148,14 @@ export default function AppRoutes() {
         element={
           <AuthRoute>
             <UserSignup />
+          </AuthRoute>
+        }
+      />
+      <Route
+        path="/forgot-password"
+        element={
+          <AuthRoute>
+            <ForgotPassword />
           </AuthRoute>
         }
       />
