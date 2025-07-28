@@ -74,12 +74,12 @@ function ProfileDropdown({ onProfile, onChangePassword, onLogout, onClose }) {
       }} style={{ background: "none", border: "none", padding: "10px 16px", textAlign: "left", cursor: "pointer", fontSize: "1rem", color: "#333", transition: "background 0.2s" }}>
         My Profile
       </button>
-      <button onClick={(e) => {
+      {/* <button onClick={(e) => {
         e.stopPropagation();
         onChangePassword();
       }} style={{ background: "none", border: "none", padding: "10px 16px", textAlign: "left", cursor: "pointer", fontSize: "1rem", color: "#333", transition: "background 0.2s" }}>
         Change Password
-      </button>
+      </button> */}
       <button onClick={(e) => {
         e.stopPropagation();
         onLogout();
@@ -105,6 +105,7 @@ export default function Navbar({
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [isProfileOpen, setIsProfileOpen] = useState(false)
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false)
+  const [showLogoutDialog, setShowLogoutDialog] = useState(false) // <-- Add state for modal
   const profileDropdownRef = useRef(null)
 
   // Generate a consistent color based on user's email/name
@@ -250,8 +251,8 @@ export default function Navbar({
                     <>
                       <ProfileDropdown
                         onProfile={() => { navigate("/user/profile"); setIsProfileDropdownOpen(false) }}
-                        onChangePassword={() => { navigate("/user/change-password"); setIsProfileDropdownOpen(false) }}
-                        onLogout={() => { logout(); setIsProfileDropdownOpen(false) }}
+                        // onChangePassword={() => { navigate("/user/change-password"); setIsProfileDropdownOpen(false) }}
+                        onLogout={() => { setShowLogoutDialog(true); setIsProfileDropdownOpen(false) }} // <-- Open modal
                         onClose={() => setIsProfileDropdownOpen(false)}
                       />
                       {/* Overlay for click outside */}
@@ -399,6 +400,32 @@ export default function Navbar({
 
       {/* Profile Modal */}
       <ProfileModal isOpen={isProfileOpen} onClose={() => setIsProfileOpen(false)} />
+      {/* Logout Confirmation Dialog */}
+      {showLogoutDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-sm">
+            <div className="font-semibold text-lg mb-2">Do you want to logout?</div>
+            <div className="flex justify-end gap-2 mt-4">
+              <button
+                className="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300"
+                onClick={() => setShowLogoutDialog(false)}
+              >
+                No
+              </button>
+              <button
+                className="px-4 py-2 rounded bg-red-600 text-white hover:bg-red-700"
+                onClick={() => {
+                  logout();
+                  setShowLogoutDialog(false);
+                  navigate("/login");
+                }}
+              >
+                Yes, Logout
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   )
 }
