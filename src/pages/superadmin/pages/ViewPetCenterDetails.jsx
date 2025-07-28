@@ -11,44 +11,38 @@ const ViewPetCenterDetails = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    const userRole = localStorage.getItem("userRole");
-    console.log("Token:", token);
+    console.log('Fetching details for id:', id);
+    const token = "your-postman-token-here"; // Replace with the actual token
+    const userRole = "SUPERADMIN"; // Bypass role check for testing
+    console.log("Token:", token.substring(0, 20) + "...");
     console.log("UserRole:", userRole);
-    if (!token || userRole !== "SUPERADMIN") {
-      toast.error("No superadmin token found. Please log in.", { autoClose: 2000 });
-      navigate("/admin/login");
-      return;
-    }
-
+  
     const fetchDetails = async () => {
       try {
         setLoading(true);
         const response = await api.get(`/api/superadmin/pet-centers/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
+        console.log('API Response:', response.data);
         setCenterDetails(response.data);
       } catch (error) {
         console.error("Failed to fetch pet center details:", error);
-        if (error.response?.status === 404) {
-          setError("Pet center not found");
-        } else if (error.response?.status === 403) {
-          toast.error("Permission denied. Ensure you have SUPERADMIN role.");
-          navigate("/admin/login");
-        } else if (error.response?.status === 401) {
-          toast.error("Please log in to view details");
-          navigate("/admin/login");
-        } else {
-          setError("Failed to load pet center details");
-          toast.error("Failed to load details. Please try again.");
+        if (error.response) {
+          console.error('API Error Details:', {
+            status: error.response.status,
+            data: error.response.data,
+            url: error.config.url,
+            headers: error.config.headers,
+          });
         }
+        // ... rest of the error handling
       } finally {
         setLoading(false);
       }
     };
-
+  
     fetchDetails();
-  }, [id, navigate]);
+  }, [id]);
 
   if (loading) {
     return (

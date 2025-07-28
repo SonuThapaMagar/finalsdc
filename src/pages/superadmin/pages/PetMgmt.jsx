@@ -15,6 +15,7 @@ import {
   Cell,
 } from "recharts";
 import { toast } from "react-toastify";
+import * as XLSX from 'xlsx';
 
 const PetMgmt = () => {
   const navigate = useNavigate();
@@ -98,6 +99,37 @@ const PetMgmt = () => {
     fetchData();
   }, [currentPage]); // Removed navigate from dependency array
 
+  // Export chart data to Excel (Bar and Pie chart data)
+  const handleExportChart = () => {
+    if (!petStats.length && !statusData.length) {
+      toast.error('No chart data to export');
+      return;
+    }
+    // Export both bar and pie chart data as separate sheets
+    const workbook = XLSX.utils.book_new();
+    if (petStats.length) {
+      const barSheet = XLSX.utils.json_to_sheet(petStats);
+      XLSX.utils.book_append_sheet(workbook, barSheet, 'MonthlyStats');
+    }
+    if (statusData.length) {
+      const pieSheet = XLSX.utils.json_to_sheet(statusData);
+      XLSX.utils.book_append_sheet(workbook, pieSheet, 'StatusData');
+    }
+    XLSX.writeFile(workbook, 'pet_charts.xlsx');
+  };
+
+  // Export table data to Excel
+  const handleExportTable = () => {
+    if (!pets.length) {
+      toast.error('No table data to export');
+      return;
+    }
+    const worksheet = XLSX.utils.json_to_sheet(pets);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Pets');
+    XLSX.writeFile(workbook, 'pets_table.xlsx');
+  };
+
   const handleEdit = (petId) => {
     navigate(`/superadmin/pets/edit/${petId}`);
   };
@@ -121,31 +153,22 @@ const PetMgmt = () => {
     }
   };
 
-  const handleExport = () => {
-    import("xlsx").then((XLSX) => {
-      const worksheet = XLSX.utils.json_to_sheet(pets);
-      const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, "Pets");
-      XLSX.writeFile(workbook, "pets.xlsx");
-    });
-  };
-
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
       <h1 className="text-2xl font-bold text-gray-800 mb-8">Pet Management</h1>
-
+      <div className="flex justify-end gap-2 mb-4">
+        <button
+          onClick={handleExportChart}
+          className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+        >
+          Export Chart Data to Excel
+        </button>
+      </div>
       {/* Charts Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         <div className="bg-white rounded-lg shadow-md p-6">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-semibold text-gray-800">Pet Statistics</h2>
-            <button
-              onClick={handleExport}
-              className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-            >
-              <RiFileExcel2Line className="text-xl" />
-              Export to Excel
-            </button>
           </div>
           <div className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
@@ -189,6 +212,14 @@ const PetMgmt = () => {
       </div>
 
       {/* Table Section */}
+      <div className="flex justify-end mb-2">
+        <button
+          onClick={handleExportTable}
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+        >
+          Export Table Data to Excel
+        </button>
+      </div>
       <div className="bg-white rounded-lg shadow-md overflow-hidden">
         <div className="overflow-x-auto">
           {tableLoading ? (

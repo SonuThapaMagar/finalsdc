@@ -110,7 +110,7 @@ const AdoptionRequests = () => {
       PENDING: "bg-yellow-100 text-yellow-800",
       ACCEPTED: "bg-green-100 text-green-800",
       REJECTED: "bg-red-100 text-red-800",
-      COMPLETED: "bg-blue-100 text-blue-800",
+      // COMPLETED: "bg-blue-100 text-blue-800",
     };
     return (
       <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusConfig[status] || "bg-gray-100 text-gray-800"}`}>
@@ -140,7 +140,7 @@ const AdoptionRequests = () => {
         <p className="text-gray-600 mt-2">Manage and review pet adoption requests</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <div className="bg-white rounded-lg shadow p-4">
           <div className="flex items-center">
             <div className="w-12 h-12 rounded-full bg-yellow-100 flex items-center justify-center">
@@ -186,7 +186,7 @@ const AdoptionRequests = () => {
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-lg shadow p-4">
+        {/* <div className="bg-white rounded-lg shadow p-4">
           <div className="flex items-center">
             <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
               <span className="text-blue-600 font-semibold">
@@ -200,7 +200,7 @@ const AdoptionRequests = () => {
               </p>
             </div>
           </div>
-        </div>
+        </div> */}
       </div>
 
       <div className="bg-white rounded-lg shadow-md overflow-hidden">

@@ -35,6 +35,7 @@ import ChangePassword from "../pages/user/pages/ChangePassword";
 import LostFound from "../pages/user/pages/LostFound";
 import MyAdoptions from "../pages/user/pages/MyAdoptions";
 import ForgotPassword from "../pages/user/pages/ForgotPassword";
+import PetDetails from "../pages/admin/pages/PetDetails";
 
 // Route Guard Components (unchanged)
 const ProtectedRoute = ({ children, requiredRole }) => {
@@ -220,6 +221,7 @@ export default function AppRoutes() {
         <Route path="dashboard" element={<AdminDashboard />} />
         <Route path="users" element={<ViewUsers />} />
         <Route path="pets" element={<PetCRUD />} />
+        <Route path="pets/:id" element={<PetDetails />} />
         <Route path="adoptionRequests" element={<AdoptionRequests />} />
         <Route path="adminProfile" element={<PetCenterProfile />} />
         <Route path="pet-centers/edit/:centerId" element={<EditPetCenter />} />

@@ -1,7 +1,14 @@
 import React from 'react';
-import { FaEdit, FaTrash } from 'react-icons/fa';
+import { FaEdit, FaTrash, FaEye } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
 
 export default function PetCenterList({ petCenters, onEdit, onDelete, onViewDetails }) {
+  const navigate = useNavigate();
+
+  const handleViewDetails = (petCenterId) => {
+    navigate(`/superadmin/pet-centers/view-details/${petCenterId}`);
+  };
+
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden">
       <div className="overflow-x-auto">
@@ -51,16 +58,17 @@ export default function PetCenterList({ petCenters, onEdit, onDelete, onViewDeta
                 </td>
                 <td>
                   <button
-                    onClick={() => onViewDetails(center.id)}
-                    className="text-blue-600 hover:text-blue-900 mr-4"
+                    onClick={() => handleViewDetails(center.id)}
+                    className="text-blue-600 hover:text-blue-900 mr-2"
+                    title="View Details"
                   >
-                    View Details
+                    <FaEye />
                   </button>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                   <button
                     onClick={() => onEdit(center.id)}
-                    className="text-indigo-600 hover:text-indigo-900 mr-4"
+                    className="text-indigo-600 hover:text-indigo-900 mr-2"
                   >
                     <FaEdit className="inline-block" />
                   </button>

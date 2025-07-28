@@ -77,10 +77,10 @@ export default function PetCenterMgmt() {
       setError('Failed to load pet centers');
       if (error.response?.status === 403) {
         toast.error('Permission denied. Ensure you have SUPERADMIN role.');
-        navigate('/superadmin/login');
+        navigate('/admin/login');
       } else if (error.response?.status === 401) {
         toast.error('Please log in to view pet centers');
-        navigate('/superadmin/login');
+        navigate('/admin/login');
       } else {
         toast.error('Failed to load pet centers. Please try again.');
       }
@@ -128,10 +128,10 @@ export default function PetCenterMgmt() {
       console.error('Delete error:', error);
       if (error.response?.status === 403) {
         toast.error('Permission denied. Ensure you have SUPERADMIN role.');
-        navigate('/superadmin/login');
+        navigate('/admin/login');
       } else if (error.response?.status === 401) {
         toast.error('Please log in to delete pet centers');
-        navigate('/superadmin/login');
+        navigate('/admin/login');
       } else {
         toast.error('Failed to delete pet center. Please try again.');
       }
@@ -143,6 +143,7 @@ export default function PetCenterMgmt() {
   };
 
   const handleViewDetails = (petCenterId) => {
+    console.log('View Details for:', petCenterId); // Add this
     navigate(`/superadmin/pet-centers/view-details/${petCenterId}`);
   };
 

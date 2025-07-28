@@ -4,6 +4,7 @@ import UserDeleteDialog from '../../superadmin/components/UserDeleteDialog';
 import { toast } from 'react-toastify';
 import api from '../../../api/api';
 import UserLists from './UserLists';
+import * as XLSX from 'xlsx';
 
 export default function ViewUsers() {
   const navigate = useNavigate();
@@ -68,6 +69,17 @@ export default function ViewUsers() {
     setCurrentPage(page);
   };
 
+  const handleExportTable = () => {
+    if (!users.length) {
+      toast.error('No user data to export');
+      return;
+    }
+    const worksheet = XLSX.utils.json_to_sheet(users);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Users');
+    XLSX.writeFile(workbook, 'users_table.xlsx');
+  };
+
   const renderPagination = () => {
     const pages = [];
     const maxVisiblePages = 5;
@@ -127,7 +139,14 @@ export default function ViewUsers() {
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
       <h1 className="text-2xl font-bold text-gray-800 mb-8">User Management</h1>
-      
+      <div className="flex justify-end mb-2">
+        <button
+          onClick={handleExportTable}
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+        >
+          Export to Excel
+        </button>
+      </div>
       {/* User count info */}
       <div className="mb-4 text-sm text-gray-600">
         Showing {users.length} of {totalUsers} users

@@ -5,6 +5,7 @@ import UserList from '../components/UserList';
 import UserDeleteDialog from '../components/UserDeleteDialog';
 import { toast } from 'react-toastify';
 import api from '../../../api/api';
+import * as XLSX from 'xlsx';
 
 export default function UserManagement() {
   const navigate = useNavigate();
@@ -48,6 +49,30 @@ export default function UserManagement() {
     }
   };
 
+  // Export chart data to Excel
+  const handleExportChart = () => {
+    if (!monthlyStats.length) {
+      toast.error('No chart data to export');
+      return;
+    }
+    const worksheet = XLSX.utils.json_to_sheet(monthlyStats);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'UserChart');
+    XLSX.writeFile(workbook, 'user_chart.xlsx');
+  };
+
+  // Export table data to Excel
+  const handleExportTable = () => {
+    if (!users.length) {
+      toast.error('No table data to export');
+      return;
+    }
+    const worksheet = XLSX.utils.json_to_sheet(users);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Users');
+    XLSX.writeFile(workbook, 'users_table.xlsx');
+  };
+
   const handleDelete = async (userId) => {
     try {
       await api.delete(`/api/superadmin/users/${userId}`);
@@ -75,7 +100,23 @@ export default function UserManagement() {
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
       <h1 className="text-2xl font-bold text-gray-800 mb-8">User Management</h1>
+      <div className="flex justify-end gap-2 mb-4">
+        <button
+          onClick={handleExportChart}
+          className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+        >
+          Export Chart Data to Excel
+        </button>
+      </div>
       <UserBarChart monthlyStats={monthlyStats} />
+      <div className="flex justify-end mb-2">
+        <button
+          onClick={handleExportTable}
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+        >
+          Export Table Data to Excel
+        </button>
+      </div>
       <UserList
         users={users}
         onEdit={handleEdit}
